@@ -1,0 +1,9 @@
+Level 1-Collect chips to get past the chip socket. Use keys to open doors. 
+Level 2-Push blocks into water to make dirt. Watch out for monsters.
+Level 3-Suction boots for force floors. Fire boots  for fire. Flippers for water. Skates for ice.
+Level 4-The blue button controls the tanks. The green button toggles walls. Sometimes things are hidden under blocks.
+Level 5-The red button controls the clone machine. The brown button opens traps.
+Level 6-Blue walls may be fake. Some invisible walls never appear. There can be extra chips.
+Level 7-Teleports can be directional. The thief takes your tools. New walls can appear under you.
+Level 8-Monsters are stopped by dirt and gravel.
+Level 9- 
