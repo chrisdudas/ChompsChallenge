@@ -12,11 +12,18 @@ public class Player extends Unit {
 	
 	@Override
 	public String getCurrentImagePath() {
-		if (pos_direction == Directions.UP) return IMAGEPATH_UP;
-		else if (pos_direction == Directions.DOWN) return IMAGEPATH_DOWN;
-		else if (pos_direction == Directions.LEFT) return IMAGEPATH_LEFT;
-		else if (pos_direction == Directions.RIGHT) return IMAGEPATH_RIGHT;
-		return null;	
+		switch (this.getDirection()) {
+			case UP:
+				return IMAGEPATH_UP;
+			case DOWN:
+				return IMAGEPATH_DOWN;
+			case LEFT:
+				return IMAGEPATH_LEFT;
+			case RIGHT:
+				return IMAGEPATH_RIGHT;
+			default:
+				return null;
+		}
 	}	
 
 }

@@ -6,24 +6,22 @@ public abstract class Tile {
 	private int y;
 	
 	public enum Directions {
-		NONE,
 		UP,
 		DOWN, 
 		LEFT,
 		RIGHT
 	};
 	
-	public Tile(int x, int y, Directions direction) {
+	public Tile(int x, int y) {
 		this.setX(x);
 		this.setY(y);
-		this.direction = direction;
 	}
 	
 	public int getX() {
 		return x;
 	}
 
-	public void setX(int x) {
+	protected void setX(int x) {
 		this.x = x;
 	}
 
@@ -31,10 +29,19 @@ public abstract class Tile {
 		return y;
 	}
 
-	public void setY(int y) {
+	protected void setY(int y) {
 		this.y = y;
+	}
+	
+	public Directions getDirection() {
+		return direction;
+	}
+
+	protected void setDirection(Directions direction) {
+		this.direction = direction;
 	}
 
 	public abstract String getCurrentImagePath();
 
+	public abstract String parseTileProperty(String property);
 }

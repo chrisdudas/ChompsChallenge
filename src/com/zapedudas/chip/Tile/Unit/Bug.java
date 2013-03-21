@@ -1,7 +1,6 @@
 package com.zapedudas.chip.Tile.Unit;
 
-public class Bug extends Unit 
-	implements Collidable<Player>, Collidable<Bug> {
+public class Bug extends Unit {
 
 	public Bug(int X, int Y, Directions direction) {
 		super(X, Y, direction);

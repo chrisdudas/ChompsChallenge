@@ -36,20 +36,7 @@ public abstract class Unit extends Tile{
 	 * This is simply move the unit to the given co-ords
 	 */
 	public void moveTo(int X, int Y) {
-		this.pos_X = X;
-		this.pos_Y = Y;
+		this.setX(X);
+		this.setY(Y);
 	}
-	
-	public void setDirection(Directions direction) {
-		this.pos_direction = direction;
-	}
-	
-	public int getX() {
-		return pos_X;
-	}
-	
-	public int getY() {
-		return pos_Y;
-	}
-	
 }
