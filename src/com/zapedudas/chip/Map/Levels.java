@@ -8,4 +8,16 @@ public class Levels {
 	{
 	 "map1.csv"
 	};
+	
+	public static String getLevelNameFromLevelData(String[] levelData) {
+		for (int row = 0; row < levelData.length; row++) {
+			String[] pair = levelData[row].split(",");
+			
+			if (pair[0] == Levels.nameProperty) {
+				return pair[1];
+			}
+		}
+		
+		return "";
+	}
 }

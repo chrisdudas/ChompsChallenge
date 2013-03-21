@@ -6,7 +6,7 @@ public abstract class Unit extends Tile{
 
 	
 	public Unit(int x, int y, Directions direction) {
-		super(x, y, direction);
+		super(x, y);
 	}
 	
 	/**
@@ -38,5 +38,13 @@ public abstract class Unit extends Tile{
 	public void moveTo(int X, int Y) {
 		this.setX(X);
 		this.setY(Y);
+	}
+	
+	@Override
+	public void sendTileProperty(String property) {
+		if (property.equals("UP")) setDirection(Directions.UP);
+		else if (property.equals("DOWN")) setDirection(Directions.DOWN);
+		else if (property.equals("LEFT")) setDirection(Directions.LEFT);
+		else if (property.equals("RIGHT")) setDirection(Directions.RIGHT);
 	}
 }

@@ -43,5 +43,5 @@ public abstract class Tile {
 
 	public abstract String getCurrentImagePath();
 
-	public abstract String parseTileProperty(String property);
+	public abstract void sendTileProperty(String property);
 }

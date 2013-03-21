@@ -58,6 +58,11 @@ public class Map {
 		try {
 			Constructor<?> tileConstructor = TileMapping.tileMap.get(tileID).getConstructor(Integer.class, Integer.class);
 			Tile tile = (Tile)tileConstructor.newInstance(x, y);
+			
+			for (int i = 1; i < values.length; i++) {
+				tile.sendTileProperty(values[i]);
+			}
+			
 			return tile;
 		} catch (SecurityException e) {
 			e.printStackTrace();
