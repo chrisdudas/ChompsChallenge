@@ -1,21 +1,34 @@
 package com.zapedudas.chip.Tile.Unit;
 
 public class Bug extends Unit {
-
-	public Bug(int X, int Y, Directions direction) {
-		super(X, Y, direction);
-		// TODO Auto-generated constructor stub
+	private final String IMAGEPATH_UP = "bug_up.png";
+	private final String IMAGEPATH_DOWN = "bug_down.png";
+	private final String IMAGEPATH_LEFT = "bug_left.png";
+	private final String IMAGEPATH_RIGHT = "bug_right.png";
+	
+	public Bug(int X, int Y) {
+		super(X, Y);
+		this.setDirection(Directions.DOWN);
 	}
 
 	public void Collided(Player Unit) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public String getCurrentImagePath() {
-		// TODO Auto-generated method stub
-		return null;
+		switch (this.getDirection()) {
+			case UP:
+				return IMAGEPATH_UP;
+			case DOWN:
+				return IMAGEPATH_DOWN;
+			case LEFT:
+				return IMAGEPATH_LEFT;
+			case RIGHT:
+				return IMAGEPATH_RIGHT;
+			default:
+				return null;
+		}	
 	}
 
 }

@@ -5,7 +5,7 @@ import com.zapedudas.chip.Tile.Tile;
 public abstract class Unit extends Tile{
 
 	
-	public Unit(int x, int y, Directions direction) {
+	public Unit(int x, int y) {
 		super(x, y);
 	}
 	

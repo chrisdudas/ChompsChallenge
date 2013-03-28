@@ -6,8 +6,8 @@ public class Player extends Unit {
 	final String IMAGEPATH_LEFT = "dog_left.png";
 	final String IMAGEPATH_RIGHT = "dog_right.png";
 	
-	public Player(int X, int Y, Directions direction) {
-		super(X, Y, direction);
+	public Player(int X, int Y) {
+		super(X, Y);
 	}	
 	
 	@Override

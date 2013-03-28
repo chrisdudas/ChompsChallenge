@@ -1,10 +1,12 @@
 package com.zapedudas.chip.Map;
 
 import java.lang.reflect.Constructor;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import com.zapedudas.chip.Tile.Tile;
+import com.zapedudas.chip.Tile.TileMapping;
 
 public class Map {
 	private String levelName;
@@ -18,10 +20,10 @@ public class Map {
 		for (int row = 0; row < levelData.length; row++) {
 			String[] pair = levelData[row].split(",");
 			
-			if (pair[0] == Levels.nameProperty) {
+			if (pair[0].equals(Levels.nameProperty)) {
 				this.levelName = pair[1];
 			}
-			else if (pair[0] == Levels.mapbeginProperty) {
+			else if (pair[0].equals(Levels.mapbeginProperty)) {
 				String[] mapData = Arrays.copyOfRange(levelData, row + 1, levelData.length);
 				parseMapData(mapData);
 			}
@@ -56,7 +58,8 @@ public class Map {
 		int tileID = Integer.parseInt(values[0]);
 		
 		try {
-			Constructor<?> tileConstructor = TileMapping.tileMap.get(tileID).getConstructor(Integer.class, Integer.class);
+			Class<?> tileClass = TileMapping.tileMap.get(tileID);
+			Constructor<?> tileConstructor = tileClass.getConstructor(int.class, int.class);
 			Tile tile = (Tile)tileConstructor.newInstance(x, y);
 			
 			for (int i = 1; i < values.length; i++) {
@@ -79,5 +82,9 @@ public class Map {
 		}
 		
 		return null;
+	}
+	
+	public Tile[] getTilesAt(int x, int y) {
+		return mapMatrix[x][y];
 	}
 }
