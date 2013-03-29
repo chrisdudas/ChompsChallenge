@@ -1,6 +1,5 @@
 package com.zapedudas.chip.Tile;
 
-
 public class Wall extends Tile {
 	final String IMAGEPATH = "wall.png";
 	
@@ -14,7 +13,5 @@ public class Wall extends Tile {
 	}
 
 	@Override
-	public void sendTileProperty(String property) {
-	}
-
+	public void sendTileProperty(String property) {}
 }

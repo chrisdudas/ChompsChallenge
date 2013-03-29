@@ -12,6 +12,9 @@ public class Map {
 	private String levelName;
 	private Tile[][][] mapMatrix;
 	
+	private int width;
+	private int height;
+
 	public Map(String[] levelData) {
 		readLevelData(levelData);
 	}
@@ -31,14 +34,14 @@ public class Map {
 	}
 	
 	private void parseMapData(String[] mapData) {
-		int nRows = mapData.length;
-		int nCols = mapData[0].split(",").length;
-		mapMatrix = new Tile[nRows][nCols][2];		
+		this.height = mapData.length;
+		this.width = mapData[0].split(",").length;
+		mapMatrix = new Tile[this.height][this.width][2];		
 		
-		for (int row = 0; row < mapData.length; row++) {
+		for (int row = 0; row < this.height; row++) {
 			String[] columns = mapData[row].split(",");
 			
-			for (int col = 0; col < columns.length; col++) {
+			for (int col = 0; col < this.width; col++) {
 				String[] elements = columns[col].split(" ");
 				
 				Tile floor = null;
@@ -58,7 +61,7 @@ public class Map {
 		int tileID = Integer.parseInt(values[0]);
 		
 		try {
-			Class<?> tileClass = TileMapping.tileMap.get(tileID);
+			Class<?> tileClass = TileMapping.getClassFromID(tileID);
 			Constructor<?> tileConstructor = tileClass.getConstructor(int.class, int.class);
 			Tile tile = (Tile)tileConstructor.newInstance(x, y);
 			
@@ -84,7 +87,33 @@ public class Map {
 		return null;
 	}
 	
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+	
 	public Tile[] getTilesAt(int x, int y) {
 		return mapMatrix[x][y];
+	}
+	
+	public Tile getFloorAt(int x, int y) {
+		return getTilesAt(x, y)[0];
+	}
+	
+	public Tile getUnitAt(int x, int y) {
+		return getTilesAt(x, y)[1];
+	}
+	
+	public void setUnitAt(int x, int y, Tile tile) {
+		mapMatrix[x][y][1] = tile;
+	}
+	
+	public void moveUnitTileFromCoordsToCoords(int old_x, int old_y, int new_x, int new_y) {
+		Tile tile = getUnitAt(old_x, old_y);
+		setUnitAt(old_x, old_y, null);
+		setUnitAt(new_x, new_y, tile);
 	}
 }

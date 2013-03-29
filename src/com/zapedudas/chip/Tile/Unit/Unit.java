@@ -1,10 +1,9 @@
 package com.zapedudas.chip.Tile.Unit;
 
 import com.zapedudas.chip.Tile.Tile;
+import com.zapedudas.chip.Tile.Driver.Driver;
 
 public abstract class Unit extends Tile{
-
-	
 	public Unit(int x, int y) {
 		super(x, y);
 	}
@@ -14,14 +13,18 @@ public abstract class Unit extends Tile{
 	 */
 	public void move(Directions direction) {
 		switch (direction) {
-		case UP:
-			this.setY(this.getY() - 1);
-		case DOWN:
-			this.setY(this.getY() + 1);
-		case LEFT:
-			this.setX(this.getX() - 1);
-		case RIGHT:
-			this.setX(this.getX() + 1);
+			case UP:
+				this.setY(this.getY() - 1);
+				break;
+			case DOWN:
+				this.setY(this.getY() + 1);
+				break;
+			case LEFT:
+				this.setX(this.getX() - 1);
+				break;
+			case RIGHT:
+				this.setX(this.getX() + 1);
+				break;
 		}
 	}
 

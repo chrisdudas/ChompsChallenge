@@ -1,9 +1,15 @@
 package com.zapedudas.chip;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.os.Bundle;
 
 import com.zapedudas.chip.Map.Map;
 import com.zapedudas.chip.Tile.Tile;
+import com.zapedudas.chip.Tile.Driver.BugDriver;
+import com.zapedudas.chip.Tile.Driver.NPCDriver;
+import com.zapedudas.chip.Tile.Unit.Unit;
 
 import processing.core.*;
 
@@ -14,6 +20,8 @@ public class LevelScreen extends PApplet {
 	private int tile_width;
 	private int tile_height;	
 	private ImageCache imageCache;
+	
+	private ArrayList<NPCDriver> npcDrivers;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,13 +37,28 @@ public class LevelScreen extends PApplet {
 	public void setup()
 	{
 		// TODO: CHANGE THIS
-		this.numtiles_x = 9;
-		this.numtiles_y = 9;
+		this.numtiles_x = 11;
+		this.numtiles_y = 11;
 		
 		this.tile_width = this.width / this.numtiles_x;
 		this.tile_height = this.tile_width;
 		
 		this.background(0, 88, 58);
+		
+		this.frameRate(30);
+		
+		// setup unit drivers
+		npcDrivers = new ArrayList<NPCDriver>();
+		
+		for (int row = 0; row < map.getWidth(); row++) {
+			for (int col = 0; col < map.getHeight(); col++) {
+				Tile unit = map.getUnitAt(col, row);
+				if (unit != null) {
+					NPCDriver driver = new BugDriver((Unit)unit, this.map, row, col);
+					npcDrivers.add(driver);    
+				}
+			}
+		}
 	}
 	
 	public void draw()
@@ -44,24 +67,34 @@ public class LevelScreen extends PApplet {
 		int screen_x = 0;
 		int screen_y = 0;
 		
+		triggerDrivers();
+		
 		for (int row = 0; row <= screen_x + numtiles_x; row++) {
 			for (int col = 0; col <= screen_y + numtiles_y; col++) {
 				Tile[] tiles = this.map.getTilesAt(row, col);
 				
-				for (Tile tile : tiles) {
-					if (tile != null) {
-						PImage tileImage = this.imageCache.getPImage(tile.getCurrentImagePath());
-						
-						int loc_x = this.tile_width * row;
-						int loc_y = this.tile_height * col;
-						image(tileImage, loc_x, loc_y, this.tile_width, this.tile_height);
-					}
-				}
+				Tile floor = tiles[0];
+				Tile unit = tiles[1];
+				
+				if (floor != null) drawTile(floor, row, col);
+				if (unit != null) drawTile(unit, row, col);
 			}
 		}
+	}
 		
+	private void drawTile(Tile tile, int row, int col) {
+		PImage tileImage = this.imageCache.getPImage(tile.getCurrentImagePath());
 		
-		
+		int loc_x = this.tile_width * row;
+		int loc_y = this.tile_height * col;
+		image(tileImage, loc_x, loc_y, this.tile_width, this.tile_height);	
+	}
+	
+	private void triggerDrivers() {
+		for (NPCDriver driver : npcDrivers) {
+			driver.tick();
+		}
+	}
 		
 //		background(0,88,58);
 //		for (int row = 0; row <= players.get(currentPlayer).getY() + viewSize; row++)
@@ -342,5 +375,4 @@ public class LevelScreen extends PApplet {
 //				}
 //			}
 //		}
-	}
 }

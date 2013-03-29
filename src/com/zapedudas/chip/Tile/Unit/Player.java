@@ -24,6 +24,5 @@ public class Player extends Unit {
 			default:
 				return null;
 		}
-	}	
-
+	}
 }

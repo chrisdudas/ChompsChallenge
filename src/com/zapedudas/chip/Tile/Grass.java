@@ -15,5 +15,4 @@ public class Grass extends Tile {
 	@Override
 	public void sendTileProperty(String property) {
 	}
-
 }
