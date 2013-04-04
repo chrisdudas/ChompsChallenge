@@ -1,27 +1,52 @@
 package com.zapedudas.chip;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.zapedudas.chip.Map.Map;
 import com.zapedudas.chip.Tile.Tile;
+import com.zapedudas.chip.Tile.Tile.Directions;
 import com.zapedudas.chip.Tile.Driver.BugDriver;
+import com.zapedudas.chip.Tile.Driver.LocalPlayerDriver;
 import com.zapedudas.chip.Tile.Driver.NPCDriver;
-import com.zapedudas.chip.Tile.Unit.Unit;
+import com.zapedudas.chip.Tile.Unit.*;
 
 import processing.core.*;
 
 public class LevelScreen extends PApplet {
+	private final int BACKGROUND_R = 0;
+	private final int BACKGROUND_G = 88;
+	private final int BACKGROUND_B = 58;
+	
+	private final int MILLIS_PER_STEP = 100;
+	
 	private Map map;
-	private int numtiles_x;
-	private int numtiles_y;
+	private int viewradii_x;
+	private int viewradii_y;
+	private int viewsize_x;
+	private int viewsize_y;
 	private int tile_width;
 	private int tile_height;	
 	private ImageCache imageCache;
+	private int lastStep = 0;
 	
 	private ArrayList<NPCDriver> npcDrivers;
+	
+	// Buttons
+	private final int BUTTON_SIZE = 80;
+	private final String ARROW_UP = "arrow up.png";
+	private final String ARROW_LEFT = "arrow left.png";
+	private final String ARROW_RIGHT = "arrow right.png";
+	private final String ARROW_DOWN = "arrow down.png";
+	private final String ARROW_UP_PRESS = "arrow up glow.png";
+	private final String ARROW_LEFT_PRESS = "arrow left glow.png";
+	private final String ARROW_RIGHT_PRESS = "arrow right glow.png";
+	private final String ARROW_DOWN_PRESS = "arrow down glow.png";
+	
+	// Player/s
+	private Player localPlayer;
+	private LocalPlayerDriver localPlayerDriver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,57 +61,87 @@ public class LevelScreen extends PApplet {
 	
 	public void setup()
 	{
-		// TODO: CHANGE THIS
-		this.numtiles_x = 11;
-		this.numtiles_y = 11;
+		// TODO: CHANGE THIS - intelligently find the number of tiles to display (based on size and dpi)
+		this.viewradii_x = 4;
+		this.viewradii_y = 4;
 		
-		this.tile_width = this.width / this.numtiles_x;
+		this.viewsize_x = (viewradii_x * 2) + 1;
+		this.viewsize_y = (viewradii_y * 2) + 1;
+		
+		this.tile_width = this.width / this.viewsize_x;
 		this.tile_height = this.tile_width;
 		
-		this.background(0, 88, 58);
+		this.background(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 		
-		this.frameRate(30);
+		this.frameRate(60);
 		
 		// setup unit drivers
 		npcDrivers = new ArrayList<NPCDriver>();
 		
-		for (int row = 0; row < map.getWidth(); row++) {
-			for (int col = 0; col < map.getHeight(); col++) {
+		for (int row = 0; row < map.getHeight(); row++) {
+			for (int col = 0; col < map.getWidth(); col++) {
 				Tile unit = map.getUnitAt(col, row);
 				if (unit != null) {
-					NPCDriver driver = new BugDriver((Unit)unit, this.map, row, col);
-					npcDrivers.add(driver);    
+					if (unit instanceof Bug) {
+						NPCDriver driver = new BugDriver((Unit)unit, this.map, col, row);
+						npcDrivers.add(driver);	
+					}
+					else if (unit instanceof Player) {
+						localPlayer = (Player)unit;
+						localPlayerDriver = new LocalPlayerDriver((Unit)unit, map, col, row);
+					}
+
 				}
 			}
+		}
+		
+		if (localPlayerDriver == null) {
+			Toast.makeText(this, "ERROR: no player found", Toast.LENGTH_LONG).show();
+			this.finish();
 		}
 	}
 	
 	public void draw()
 	{
-		// TODO: get current player position and adjust top-left screen coords to center them;
-		int screen_x = 0;
-		int screen_y = 0;
+		int screen_x;
+		if (localPlayer.getX() < this.viewradii_x) screen_x = 0;
+		else if (localPlayer.getX() >= map.getWidth() - this.viewradii_x) screen_x = map.getWidth() - this.viewsize_x;
+		else screen_x = localPlayer.getX() - this.viewradii_x;		
 		
-		triggerDrivers();
+		int screen_y;
+		if (localPlayer.getY() < this.viewradii_y) screen_y = 0;
+		else if (localPlayer.getY() >= map.getHeight() - this.viewradii_y) screen_y = map.getHeight() - this.viewsize_y;
+		else screen_y = localPlayer.getY() - this.viewradii_y;	
 		
-		for (int row = 0; row <= screen_x + numtiles_x; row++) {
-			for (int col = 0; col <= screen_y + numtiles_y; col++) {
-				Tile[] tiles = this.map.getTilesAt(row, col);
+		if (lastStep == 0 || lastStep + MILLIS_PER_STEP < millis()) {
+			lastStep = millis();
+			triggerDrivers();
+		}
+	
+		for (int row = screen_y; row < screen_y + viewsize_y; row++) {
+			for (int col = screen_x; col < screen_x + viewsize_x; col++) {
+				Tile[] tiles = this.map.getTilesAt(col, row);
 				
 				Tile floor = tiles[0];
 				Tile unit = tiles[1];
 				
-				if (floor != null) drawTile(floor, row, col);
-				if (unit != null) drawTile(unit, row, col);
+				if (floor != null) drawTile(floor, col - screen_x, row - screen_y);
+				if (unit != null) drawTile(unit, col - screen_x, row - screen_y);	
 			}
 		}
+		
+		// Draw buttons
+		image(imageCache.getPImage(ARROW_UP), 10 + BUTTON_SIZE, height - (3 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+		image(imageCache.getPImage(ARROW_LEFT), 10, height - ( 2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+		image(imageCache.getPImage(ARROW_RIGHT), 10 + (2 * BUTTON_SIZE), height - (2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+		image(imageCache.getPImage(ARROW_DOWN), 10 + BUTTON_SIZE, height - (BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE); 
 	}
 		
-	private void drawTile(Tile tile, int row, int col) {
+	private void drawTile(Tile tile, int x, int y) {
 		PImage tileImage = this.imageCache.getPImage(tile.getCurrentImagePath());
 		
-		int loc_x = this.tile_width * row;
-		int loc_y = this.tile_height * col;
+		int loc_x = this.tile_width * x;
+		int loc_y = this.tile_height * y;
 		image(tileImage, loc_x, loc_y, this.tile_width, this.tile_height);	
 	}
 	
@@ -95,6 +150,38 @@ public class LevelScreen extends PApplet {
 			driver.tick();
 		}
 	}
+
+	@Override
+	public void mousePressed() {
+//		notified = false;
+//		if(map[players.get(currentPlayer).getY()][players.get(currentPlayer).getX()] < 10 
+//		|| map[players.get(currentPlayer).getY()][players.get(currentPlayer).getX()] > 14 || players.get(currentPlayer).hasIceBoots()) {
+			if (mouseX >= 10+BUTTON_SIZE  && mouseX <= 10+(2*BUTTON_SIZE) && mouseY >= height - (3*BUTTON_SIZE+60) && mouseY <= height - (2*BUTTON_SIZE+60)) {
+				localPlayerDriver.move(Directions.UP);
+				image(imageCache.getPImage(ARROW_UP_PRESS), 10 + BUTTON_SIZE, height - (3 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			}
+			
+			if (mouseX >= 10 && mouseX <= 10+BUTTON_SIZE && mouseY >= height - (2*BUTTON_SIZE+60) && mouseY <= height - (BUTTON_SIZE+60)) {
+				localPlayerDriver.move(Directions.LEFT);
+				image(imageCache.getPImage(ARROW_LEFT_PRESS), 10, height - ( 2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			}
+			
+			if (mouseX >= 10+(2*BUTTON_SIZE) && mouseX <= 10+(3*BUTTON_SIZE) && mouseY >= height - (2*BUTTON_SIZE+60) && mouseY <= height - (BUTTON_SIZE+60)) {
+				localPlayerDriver.move(Directions.RIGHT);
+				image(imageCache.getPImage(ARROW_RIGHT_PRESS), 10 + (2 * BUTTON_SIZE), height - (2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			}
+			
+			if (mouseX >= 10+(BUTTON_SIZE) && mouseX <= 10+(2*BUTTON_SIZE) && mouseY >= height - (BUTTON_SIZE+60) && mouseY <= height - 60) {
+				localPlayerDriver.move(Directions.DOWN);
+				image(imageCache.getPImage(ARROW_DOWN_PRESS), 10 + BUTTON_SIZE, height - (BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			}
+			
+//		}image(arrows[2],10+(2*buttonSize),height - (2*buttonSize+60),buttonSize, buttonSize);
+//		firstPress  = frameCount;
+	}
+//	
+	
+	
 		
 //		background(0,88,58);
 //		for (int row = 0; row <= players.get(currentPlayer).getY() + viewSize; row++)

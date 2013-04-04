@@ -19,6 +19,8 @@ public class ImageCache {
 		
 		if (currentImage == null) {
 			currentImage = this.parentApplet.loadImage(imageName);
+			
+			this.imageStore.put(imageName, currentImage);
 		}
 		
 		return currentImage;

@@ -1,11 +1,11 @@
 package com.zapedudas.chip.Tile.Unit;
 
 import com.zapedudas.chip.Tile.Tile;
-import com.zapedudas.chip.Tile.Driver.Driver;
 
 public abstract class Unit extends Tile{
 	public Unit(int x, int y) {
 		super(x, y);
+		this.setDirection(Directions.DOWN);
 	}
 	
 	/**

@@ -21,7 +21,7 @@ public abstract class Tile {
 		return x;
 	}
 
-	protected void setX(int x) {
+	public void setX(int x) {
 		this.x = x;
 	}
 
@@ -29,7 +29,7 @@ public abstract class Tile {
 		return y;
 	}
 
-	protected void setY(int y) {
+	public void setY(int y) {
 		this.y = y;
 	}
 	
@@ -37,7 +37,7 @@ public abstract class Tile {
 		return direction;
 	}
 
-	protected void setDirection(Directions direction) {
+	public void setDirection(Directions direction) {
 		this.direction = direction;
 	}
 

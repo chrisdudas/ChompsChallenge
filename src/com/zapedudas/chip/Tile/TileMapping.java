@@ -2,8 +2,7 @@ package com.zapedudas.chip.Tile;
 
 import android.util.SparseArray;
 
-import com.zapedudas.chip.Tile.Driver.Driver;
-import com.zapedudas.chip.Tile.Unit.Bug;
+import com.zapedudas.chip.Tile.Unit.*;
 
 public class TileMapping {
 	private static SparseArray<Class<?>> tileMap;
@@ -13,6 +12,8 @@ public class TileMapping {
 		
 		tileMap.put(0, Wall.class);
 		tileMap.put(1, Grass.class);
+		
+		tileMap.put(100, Player.class);
 		
 		tileMap.put(16, Bug.class);
 	}

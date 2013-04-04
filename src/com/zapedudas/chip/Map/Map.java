@@ -95,8 +95,12 @@ public class Map {
 		return height;
 	}
 	
+	public Tile[][][] getMapMatrix() {
+		return mapMatrix;
+	}
+	
 	public Tile[] getTilesAt(int x, int y) {
-		return mapMatrix[x][y];
+		return mapMatrix[y][x];
 	}
 	
 	public Tile getFloorAt(int x, int y) {
@@ -108,7 +112,7 @@ public class Map {
 	}
 	
 	public void setUnitAt(int x, int y, Tile tile) {
-		mapMatrix[x][y][1] = tile;
+		mapMatrix[y][x][1] = tile;
 	}
 	
 	public void moveUnitTileFromCoordsToCoords(int old_x, int old_y, int new_x, int new_y) {
