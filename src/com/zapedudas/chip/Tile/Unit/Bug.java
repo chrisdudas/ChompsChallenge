@@ -1,5 +1,7 @@
 package com.zapedudas.chip.Tile.Unit;
 
+import com.zapedudas.chip.Tile.Driver.BugDriver;
+
 public class Bug extends Unit {
 	private final String IMAGEPATH_UP = "bug_up.png";
 	private final String IMAGEPATH_DOWN = "bug_down.png";
@@ -24,5 +26,10 @@ public class Bug extends Unit {
 			default:
 				return null;
 		}	
+	}
+
+	@Override
+	public Class<?> getUnitDriverType() {
+		return BugDriver.class;
 	}
 }

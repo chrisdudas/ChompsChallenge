@@ -25,4 +25,10 @@ public class Player extends Unit {
 				return null;
 		}
 	}
+
+	@Override
+	public Class<?> getUnitDriverType() {
+		// The player/s's driver setup is handled in the map
+		return null;
+	}
 }

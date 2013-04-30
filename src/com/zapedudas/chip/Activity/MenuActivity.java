@@ -1,4 +1,7 @@
-package com.zapedudas.chip;
+package com.zapedudas.chip.Activity;
+
+import com.zapedudas.chip.R;
+import com.zapedudas.chip.Map.Levels;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,7 +10,6 @@ import android.view.View;
 import android.widget.Button;
 
 public class MenuActivity extends Activity {
-	
 //	private Button newGame;
 	/**
 	 * Button to take the player to the level selection activity
@@ -44,26 +46,27 @@ public class MenuActivity extends Activity {
 		
 		play.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent(MenuActivity.this, LevelsActivity.class);
+				Intent intent = new Intent(MenuActivity.this, LevelScreen.class);
+				intent.putExtra("levelFile", Levels.levels[0]);
 				startActivity(intent);
 			}
 		});
 		
-		multiplayer.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent intent = new Intent(MenuActivity.this, ChipActivity.class);
-				Bundle b = new Bundle();
-				b.putBoolean("multiplayer", true);
-				intent.putExtras(b);
-				startActivity(intent);
-			}
-		});
-		
-		instructions.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent intent = new Intent(MenuActivity.this, InstructionsActivity.class);
-				startActivity(intent);
-			}
-		});
+//		multiplayer.setOnClickListener(new View.OnClickListener() {
+//			public void onClick(View v) {
+//				Intent intent = new Intent(MenuActivity.this, ChipActivity.class);
+//				Bundle b = new Bundle();
+//				b.putBoolean("multiplayer", true);
+//				intent.putExtras(b);
+//				startActivity(intent);
+//			}
+//		});
+//		
+//		instructions.setOnClickListener(new View.OnClickListener() {
+//			public void onClick(View v) {
+//				Intent intent = new Intent(MenuActivity.this, InstructionsActivity.class);
+//				startActivity(intent);
+//			}
+//		});
 	}
-} 
+}

@@ -1,80 +1,73 @@
 package com.zapedudas.chip.Tile.Driver;
 
 import com.zapedudas.chip.Map.Map;
-import com.zapedudas.chip.Tile.Grass;
+import com.zapedudas.chip.Map.MessageDispatcher;
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.Tile.Directions;
+import com.zapedudas.chip.Tile.Driver.CollisionManager.Result;
 import com.zapedudas.chip.Tile.Unit.Unit;
 
-public class Driver {
+public abstract class Driver {
 	protected Unit unit;
 	protected Map map;
+	protected MessageDispatcher messageDispatcher;
 	
-	protected int unit_x;
-	protected int unit_y;
-
-	public Driver(Unit unit, Map map, int start_x, int start_y) {
+	public Driver(Unit unit, Map map, MessageDispatcher messageDispatch) {
 		this.unit = unit;
 		this.map = map;
-		this.unit_x = start_x;
-		this.unit_y = start_y;
+		this.messageDispatcher = messageDispatch;
+		
+		this.unit.attachDriver(this);
 	}
 	
 	protected boolean tryMoveInDirection(Directions direction) {
+		int intent_x = this.unit.getX();
+		int intent_y = this.unit.getY();
+		
 		switch (direction) {
 			case UP:
-				if (checkIfTileFree(unit_x, unit_y - 1)) {
-					map.moveUnitTileFromCoordsToCoords(unit_x, unit_y, unit_x, unit_y - 1);
-					this.unit_y = unit_y - 1;
-					unit.setY(unit_y);
-					unit.setDirection(Directions.UP);
-					return true;
-				}
+				intent_y -= 1;
 				break;
 			case DOWN:
-				if (checkIfTileFree(unit_x, unit_y + 1)) {
-					map.moveUnitTileFromCoordsToCoords(unit_x, unit_y, unit_x, unit_y + 1);
-					this.unit_y = unit_y + 1;
-					unit.setY(unit_y);
-					unit.setDirection(Directions.DOWN);
-					return true;
-				}
+				intent_y += 1 ;
 				break;
 			case LEFT:
-				if (checkIfTileFree(unit_x - 1, unit_y)) {
-					map.moveUnitTileFromCoordsToCoords(unit_x, unit_y, unit_x - 1, unit_y);
-					this.unit_x = unit_x - 1;
-					unit.setX(unit_x);
-					unit.setDirection(Directions.LEFT);
-					return true;
-				}
+				intent_x -= 1;
 				break;
 			case RIGHT:
-				if (checkIfTileFree(unit_x + 1, unit_y)) {
-					map.moveUnitTileFromCoordsToCoords(unit_x, unit_y, unit_x + 1, unit_y);
-					this.unit_x = unit_x + 1;
-					unit.setX(unit_x);
-					unit.setDirection(Directions.RIGHT);
-					return true;
-				}
+				intent_x += 1;
 				break;
 		}
 		
-		return false;
-	}
-	
-	protected boolean checkIfTileFree(int x, int y) {
-		if (x < 0 || x >= map.getWidth()) return false;
-		if (y < 0 || y >= map.getHeight()) return false;
+		if (intent_x < 0 || intent_x >= map.getWidth()) return false;
+		if (intent_y < 0 || intent_y >= map.getHeight()) return false;
 		
-		Tile floor = map.getFloorAt(x, y);
-		boolean floorIsOfGrass = floor instanceof Grass;
+		Tile[] tilesAtIntent = map.getTilesAt(intent_x, intent_y);
 		
-		Tile unitAtTarget = map.getUnitAt(x, y);
+		for (int i = tilesAtIntent.length - 1; i >= 0; i--) {
+			Tile tileAtNew = tilesAtIntent[i];
+			
+			if (tileAtNew == null) continue;
+			
+			CollisionManager.Result collisionResult = CollisionManager.handleCollision(this.unit, tileAtNew);
+			
+			if (collisionResult == Result.BLOCKED) {
+				return false;
+			}
+			else if (collisionResult == Result.DIED) {
+//				break !!!!;
+				return false;
+			}
+		}
 		
-		if (!floorIsOfGrass) return false;
-		if (unitAtTarget != null) return false;
+		map.moveUnitTileFromCoordsToCoords(this.unit.getX(), this.unit.getY(), intent_x, intent_y);
+
+		unit.setX(intent_x);
+		unit.setY(intent_y);
+		unit.setDirection(direction);
 		
 		return true;
 	}
+
+	public abstract void killUnit();
 }

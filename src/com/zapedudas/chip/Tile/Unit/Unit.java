@@ -1,8 +1,11 @@
 package com.zapedudas.chip.Tile.Unit;
 
 import com.zapedudas.chip.Tile.Tile;
+import com.zapedudas.chip.Tile.Driver.Driver;
 
 public abstract class Unit extends Tile{
+	Driver driver;
+	
 	public Unit(int x, int y) {
 		super(x, y);
 		this.setDirection(Directions.DOWN);
@@ -36,7 +39,7 @@ public abstract class Unit extends Tile{
 	}
 		
 	/**
-	 * This is simply move the unit to the given co-ords
+	 * This is simply move the unit to the given coords
 	 */
 	public void moveTo(int X, int Y) {
 		this.setX(X);
@@ -49,5 +52,19 @@ public abstract class Unit extends Tile{
 		else if (property.equals("DOWN")) setDirection(Directions.DOWN);
 		else if (property.equals("LEFT")) setDirection(Directions.LEFT);
 		else if (property.equals("RIGHT")) setDirection(Directions.RIGHT);
+	}
+	
+	/**
+	 * Get the driver that should drive this unit as a class
+	 * @return The Class<?> of the unit's driver
+	 */
+	public abstract Class<?> getUnitDriverType();
+	
+	public void attachDriver(Driver driver) {
+		this.driver = driver;
+	}
+
+	public Driver getDriver() {
+		return this.driver;
 	}
 }

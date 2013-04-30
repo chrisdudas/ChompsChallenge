@@ -12,6 +12,7 @@ public class TileMapping {
 		
 		tileMap.put(0, Wall.class);
 		tileMap.put(1, Grass.class);
+		tileMap.put(2, Water.class);
 		
 		tileMap.put(100, Player.class);
 		

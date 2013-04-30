@@ -30,36 +30,4 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>src/com/zapedudas/chip/BluetoothChatService.java</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Desktop/Chip/src/alex/zapevalov/chip/BluetoothChatService.java</locationURI>
-		</link>
-		<link>
-			<name>src/com/zapedudas/chip/DeviceListActivity.java</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Desktop/Chip/src/alex/zapevalov/chip/DeviceListActivity.java</locationURI>
-		</link>
-		<link>
-			<name>src/com/zapedudas/chip/LevelsActivity.java</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Desktop/Chip/src/alex/zapevalov/chip/LevelsActivity.java</locationURI>
-		</link>
-		<link>
-			<name>src/com/zapedudas/chip/MenuActivity.java</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Desktop/Chip/src/alex/zapevalov/chip/MenuActivity.java</locationURI>
-		</link>
-		<link>
-			<name>src/com/zapedudas/chip/Player_blaa.java</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Desktop/Chip/src/alex/zapevalov/chip/Player.java</locationURI>
-		</link>
-		<link>
-			<name>src/com/zapedudas/chip/Unit_blaa.java</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Desktop/Chip/src/alex/zapevalov/chip/Unit.java</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

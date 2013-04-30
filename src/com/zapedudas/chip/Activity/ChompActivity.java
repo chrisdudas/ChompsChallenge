@@ -1,4 +1,4 @@
-package com.zapedudas.chip;
+package com.zapedudas.chip.Activity;
 
 import com.zapedudas.chip.Map.Levels;
 

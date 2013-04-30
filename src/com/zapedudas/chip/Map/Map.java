@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.TileMapping;
+import com.zapedudas.chip.Tile.Unit.Unit;
 
 public class Map {
 	private String levelName;
@@ -15,7 +16,7 @@ public class Map {
 	private int width;
 	private int height;
 
-	public Map(String[] levelData) {
+	public Map(String[] levelData) {		
 		readLevelData(levelData);
 	}
 	
@@ -107,8 +108,8 @@ public class Map {
 		return getTilesAt(x, y)[0];
 	}
 	
-	public Tile getUnitAt(int x, int y) {
-		return getTilesAt(x, y)[1];
+	public Unit getUnitAt(int x, int y) {
+		return (Unit)getTilesAt(x, y)[1];
 	}
 	
 	public void setUnitAt(int x, int y, Tile tile) {

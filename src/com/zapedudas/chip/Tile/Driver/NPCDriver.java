@@ -1,16 +1,29 @@
 package com.zapedudas.chip.Tile.Driver;
 
 import com.zapedudas.chip.Map.Map;
+import com.zapedudas.chip.Map.MessageDispatcher;
 import com.zapedudas.chip.Tile.Unit.Unit;
 
-public class NPCDriver extends Driver {
+public abstract class NPCDriver extends Driver {
 	protected int ticksSinceLastMovement;
 	
-	public NPCDriver(Unit unit, Map map, int unit_x, int unit_y) {
-		super(unit, map, unit_x, unit_y);
+	public NPCDriver(Unit unit, Map map, MessageDispatcher messageDispatcher) {
+		super(unit, map, messageDispatcher);
 	}
 	
-	public void tick() {
-		ticksSinceLastMovement++;		
+	public final void tick() {
+		ticksSinceLastMovement++;
+		if (ticksSinceLastMovement % ticksBetweenMoves() == 0) doAction();
 	}
+	
+	/**
+	 * This method is queried for how many tick calls should occur until doAction is called
+	 * @return The number of ticks between doAction calls
+	 */
+	protected abstract int ticksBetweenMoves();
+	
+	/**
+	 * Action taken upon units should occur here
+	 */
+	protected abstract void doAction();
 }
