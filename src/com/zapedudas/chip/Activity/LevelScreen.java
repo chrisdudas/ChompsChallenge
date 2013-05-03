@@ -1,4 +1,4 @@
-package com.zapedudas.chip.Activity;
+package com.zapedudas.chip.activity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,15 +9,19 @@ import android.widget.Toast;
 import android.content.Context;
 
 import com.zapedudas.chip.ImageCache;
-import com.zapedudas.chip.Map.Map;
-import com.zapedudas.chip.Map.Message;
-import com.zapedudas.chip.Map.MessageDispatcher;
-import com.zapedudas.chip.Map.Message.MessageType;
+import com.zapedudas.chip.map.Map;
+import com.zapedudas.chip.map.MapSquare;
+import com.zapedudas.chip.map.Message;
+import com.zapedudas.chip.map.MessageDispatcher;
+import com.zapedudas.chip.map.Message.MessageType;
 import com.zapedudas.chip.Tile.Tile;
-import com.zapedudas.chip.Tile.Tile.Directions;
+import com.zapedudas.chip.Tile.Driver.Driver;
 import com.zapedudas.chip.Tile.Driver.LocalPlayerDriver;
 import com.zapedudas.chip.Tile.Driver.NPCDriver;
+import com.zapedudas.chip.Tile.Item.Item;
+import com.zapedudas.chip.Tile.Tile.Directions;
 import com.zapedudas.chip.Tile.Unit.*;
+import com.zapedudas.chip.Tile.Unit.Unit.UnitState;
 
 import processing.core.*;
 
@@ -38,11 +42,11 @@ public class LevelScreen extends PApplet {
 	private ImageCache imageCache;
 	private int lastStep = 0;
 	
-	private ArrayList<NPCDriver> npcDrivers;
+	private ArrayList<Driver> drivers;
 	private MessageDispatcher messageDispatcher;
 	
 	// Buttons
-	private final int BUTTON_SIZE = 80;
+	private int buttonSize = 80;
 	private final String ARROW_UP = "arrow up.png";
 	private final String ARROW_LEFT = "arrow left.png";
 	private final String ARROW_RIGHT = "arrow right.png";
@@ -59,12 +63,6 @@ public class LevelScreen extends PApplet {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		String levelFile = this.getIntent().getStringExtra("levelFile");
-		
-		this.map = new Map(loadStrings(levelFile));
-		
-		this.imageCache = new ImageCache(this);
 	}
 	
 	public void setup()
@@ -79,23 +77,45 @@ public class LevelScreen extends PApplet {
 		this.tile_width = this.width / this.viewsize_x;
 		this.tile_height = this.tile_width;
 		
+		this.buttonSize = this.width / 6; // 6?
+		
 		this.background(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 		
 		this.frameRate(60);
 		
+		setupLevel();
+	}
+	
+	private void setupLevel() {
+		String levelFile = this.getIntent().getStringExtra("levelFile");
+		
+		this.map = new Map(loadStrings(levelFile));
+		this.imageCache = new ImageCache(this);
 		this.messageDispatcher = new MessageDispatcher();
 		
 		// setup unit drivers
-		npcDrivers = new ArrayList<NPCDriver>();
+		this.drivers = new ArrayList<Driver>();
 		
 		for (int row = 0; row < map.getHeight(); row++) {
 			for (int col = 0; col < map.getWidth(); col++) {
-				Unit unit = map.getUnitAt(col, row);
+//				Unit unit = map.getUnitAt(col, row);
+				
+				Unit[] units = map.getSquareAt(col, row).getUnits();
+				
+				Unit unit = null;
+				try {
+					if (units.length > 1) throw new Exception("More than one unit on square during driver scan!");
+					if (units.length == 1) unit = units[0];
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
 				
 				if (unit != null) {
 					if (unit instanceof Player) {
 						localPlayer = (Player)unit;
 						this.localPlayerDriver = new LocalPlayerDriver(unit, map, messageDispatcher);
+						this.drivers.add(localPlayerDriver);
 					}
 					else {
 						setupDriverForUnit(unit);
@@ -118,10 +138,10 @@ public class LevelScreen extends PApplet {
 		Class<?> driverClass = unit.getUnitDriverType();
 		
 		try {
-			Constructor<?> npcDriverConstructor = driverClass.getConstructor(Unit.class, Map.class, MessageDispatcher.class);
+			Constructor<?> driverConstructor = driverClass.getConstructor(Unit.class, Map.class, MessageDispatcher.class);
 			
-			NPCDriver npcdriver = (NPCDriver)npcDriverConstructor.newInstance(unit, map, messageDispatcher);
-			this.npcDrivers.add(npcdriver);
+			Driver driver = (Driver)driverConstructor.newInstance(unit, map, messageDispatcher);
+			this.drivers.add(driver);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
@@ -157,24 +177,27 @@ public class LevelScreen extends PApplet {
 	
 		for (int row = screen_y; row < screen_y + viewsize_y; row++) {
 			for (int col = screen_x; col < screen_x + viewsize_x; col++) {
-				Tile[] tiles = this.map.getTilesAt(col, row);
+				MapSquare tileStack = this.map.getSquareAt(col, row);
 				
-				Tile floor = tiles[0];
-				Tile unit = tiles[1];
+				for (Tile tile: tileStack.toArray()) {
+					drawTileIfPresent(tile, col - screen_x, row - screen_y);
+				}
 				
-				if (floor != null) drawTile(floor, col - screen_x, row - screen_y);
-				if (unit != null) drawTile(unit, col - screen_x, row - screen_y);	
+//				drawTileIfPresent(tileStack.getGroundTile(), col - screen_x, row - screen_y);
+//				drawTileIfPresent(tileStack.getUnitTile(), col - screen_x, row - screen_y);	
 			}
 		}
 		
 		// Draw buttons
-		image(imageCache.getPImage(ARROW_UP), 10 + BUTTON_SIZE, height - (3 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
-		image(imageCache.getPImage(ARROW_LEFT), 10, height - ( 2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
-		image(imageCache.getPImage(ARROW_RIGHT), 10 + (2 * BUTTON_SIZE), height - (2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
-		image(imageCache.getPImage(ARROW_DOWN), 10 + BUTTON_SIZE, height - (BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE); 
+		image(imageCache.getPImage(ARROW_UP), 10 + buttonSize, height - (3 * buttonSize + 60), buttonSize, buttonSize);
+		image(imageCache.getPImage(ARROW_LEFT), 10, height - ( 2 * buttonSize + 60), buttonSize, buttonSize);
+		image(imageCache.getPImage(ARROW_RIGHT), 10 + (2 * buttonSize), height - (2 * buttonSize + 60), buttonSize, buttonSize);
+		image(imageCache.getPImage(ARROW_DOWN), 10 + buttonSize, height - (buttonSize + 60), buttonSize, buttonSize); 
 	}
 		
-	private void drawTile(Tile tile, int x, int y) {
+	private void drawTileIfPresent(Tile tile, int x, int y) {
+		if (tile == null) return;
+		
 		PImage tileImage = this.imageCache.getPImage(tile.getCurrentImagePath());
 		
 		int loc_x = this.tile_width * x;
@@ -183,8 +206,16 @@ public class LevelScreen extends PApplet {
 	}
 	
 	private void triggerDrivers() {
-		for (NPCDriver driver : npcDrivers) {
+		ArrayList<Driver> driversToRemove = new ArrayList<Driver>();
+		
+		for (Driver driver : drivers) {
 			driver.tick();
+			
+			if (driver.isDriverStopped()) driversToRemove.add(driver);
+		}
+
+		for (Driver driver : driversToRemove) {
+			drivers.remove(driver);
 		}
 	}
 	
@@ -197,12 +228,23 @@ public class LevelScreen extends PApplet {
 //				unit.getDriver().killUnit();
 			}
 			else if (messageType == MessageType.PLAYER_HAS_DIED) {
+				String invenString = "";
+				
+				for (Item item : localPlayerDriver.getInventory().getItems()) {
+					invenString += item.getCurrentImagePath() + "\n";
+				}
+				
+				final String finalinvenString = invenString;				
+				
+				setupLevel();
+				
 				final Context context = this;
 				this.runOnUiThread(new Runnable() {
 					public void run() {
-						Toast.makeText(context, "You dead sucka!!!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, finalinvenString + "You dead sucka!!!", Toast.LENGTH_SHORT).show();
 					}
 				});
+				return;
 			}
 		}
 		
@@ -211,24 +253,26 @@ public class LevelScreen extends PApplet {
 
 	@Override
 	public void mousePressed() {
-		if (mouseX >= 10+BUTTON_SIZE  && mouseX <= 10+(2*BUTTON_SIZE) && mouseY >= height - (3*BUTTON_SIZE+60) && mouseY <= height - (2*BUTTON_SIZE+60)) {
+		if (localPlayer.getUnitState() != UnitState.ALIVE) return;
+		
+		if (mouseX >= 10+buttonSize  && mouseX <= 10+(2*buttonSize) && mouseY >= height - (3*buttonSize+60) && mouseY <= height - (2*buttonSize+60)) {
 			localPlayerDriver.move(Directions.UP);
-			image(imageCache.getPImage(ARROW_UP_PRESS), 10 + BUTTON_SIZE, height - (3 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			image(imageCache.getPImage(ARROW_UP_PRESS), 10 + buttonSize, height - (3 * buttonSize + 60), buttonSize, buttonSize);
 		}
 		
-		if (mouseX >= 10 && mouseX <= 10+BUTTON_SIZE && mouseY >= height - (2*BUTTON_SIZE+60) && mouseY <= height - (BUTTON_SIZE+60)) {
+		if (mouseX >= 10 && mouseX <= 10+buttonSize && mouseY >= height - (2*buttonSize+60) && mouseY <= height - (buttonSize+60)) {
 			localPlayerDriver.move(Directions.LEFT);
-			image(imageCache.getPImage(ARROW_LEFT_PRESS), 10, height - ( 2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			image(imageCache.getPImage(ARROW_LEFT_PRESS), 10, height - ( 2 * buttonSize + 60), buttonSize, buttonSize);
 		}
 		
-		if (mouseX >= 10+(2*BUTTON_SIZE) && mouseX <= 10+(3*BUTTON_SIZE) && mouseY >= height - (2*BUTTON_SIZE+60) && mouseY <= height - (BUTTON_SIZE+60)) {
+		if (mouseX >= 10+(2*buttonSize) && mouseX <= 10+(3*buttonSize) && mouseY >= height - (2*buttonSize+60) && mouseY <= height - (buttonSize+60)) {
 			localPlayerDriver.move(Directions.RIGHT);
-			image(imageCache.getPImage(ARROW_RIGHT_PRESS), 10 + (2 * BUTTON_SIZE), height - (2 * BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			image(imageCache.getPImage(ARROW_RIGHT_PRESS), 10 + (2 * buttonSize), height - (2 * buttonSize + 60), buttonSize, buttonSize);
 		}
 		
-		if (mouseX >= 10+(BUTTON_SIZE) && mouseX <= 10+(2*BUTTON_SIZE) && mouseY >= height - (BUTTON_SIZE+60) && mouseY <= height - 60) {
+		if (mouseX >= 10+(buttonSize) && mouseX <= 10+(2*buttonSize) && mouseY >= height - (buttonSize+60) && mouseY <= height - 60) {
 			localPlayerDriver.move(Directions.DOWN);
-			image(imageCache.getPImage(ARROW_DOWN_PRESS), 10 + BUTTON_SIZE, height - (BUTTON_SIZE + 60), BUTTON_SIZE, BUTTON_SIZE);
+			image(imageCache.getPImage(ARROW_DOWN_PRESS), 10 + buttonSize, height - (buttonSize + 60), buttonSize, buttonSize);
 		}
 	}
 }

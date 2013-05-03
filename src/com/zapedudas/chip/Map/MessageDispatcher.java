@@ -1,4 +1,4 @@
-package com.zapedudas.chip.Map;
+package com.zapedudas.chip.map;
 
 import java.util.ArrayList;
 

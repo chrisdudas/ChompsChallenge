@@ -1,6 +1,6 @@
-package com.zapedudas.chip.Activity;
+package com.zapedudas.chip.activity;
 
-import com.zapedudas.chip.Map.Levels;
+import com.zapedudas.chip.map.Levels;
 
 import android.app.Activity;
 import android.content.Intent;

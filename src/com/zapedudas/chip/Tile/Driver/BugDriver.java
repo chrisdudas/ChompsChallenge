@@ -1,7 +1,7 @@
 package com.zapedudas.chip.Tile.Driver;
 
-import com.zapedudas.chip.Map.Map;
-import com.zapedudas.chip.Map.MessageDispatcher;
+import com.zapedudas.chip.map.Map;
+import com.zapedudas.chip.map.MessageDispatcher;
 import com.zapedudas.chip.Tile.Tile.Directions;
 import com.zapedudas.chip.Tile.Unit.Unit;
 
@@ -11,7 +11,7 @@ public class BugDriver extends NPCDriver {
 	}
 	
 	@Override
-	protected int ticksBetweenMoves() {
+	protected int getTicksBetweenMoves() {
 		return 3;
 	}
 
@@ -40,9 +40,9 @@ public class BugDriver extends NPCDriver {
 		}
 	}
 
-	@Override
-	public void killUnit() {
-//		map.setUnitAt(this.unit.getX(), this.unit_y, null);
-		
-	}
+//	@Override
+//	public void killUnit() {
+////		map.setUnitAt(this.unit.getX(), this.unit_y, null);
+//		
+//	}
 }

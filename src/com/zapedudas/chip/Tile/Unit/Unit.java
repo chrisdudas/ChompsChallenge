@@ -4,11 +4,38 @@ import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.Driver.Driver;
 
 public abstract class Unit extends Tile{
+	private final String IMAGEPATH_DYING = "tombstone.png";
+	private final String IMAGEPATH_DROWNING = "water_splash.png";
+	private final String IMAGEPATH_BURNING = "tombstone.png";
+	
 	Driver driver;
+	UnitState unitState;
+	
+	public enum UnitState {
+		ALIVE,
+		DYING,
+		DROWNING,
+		BURNING
+	}
 	
 	public Unit(int x, int y) {
 		super(x, y);
 		this.setDirection(Directions.DOWN);
+		this.unitState = UnitState.ALIVE;
+	}
+	
+	@Override
+	public String getCurrentImagePath() {
+		switch (this.unitState) {
+			case DYING:
+				return IMAGEPATH_DYING;
+			case DROWNING:
+				return IMAGEPATH_DROWNING;
+			case BURNING:
+				return IMAGEPATH_BURNING;
+			default:
+				return null;
+		}
 	}
 	
 	/**
@@ -66,5 +93,13 @@ public abstract class Unit extends Tile{
 
 	public Driver getDriver() {
 		return this.driver;
+	}
+	
+	public UnitState getUnitState() {
+		return unitState;
+	}
+	
+	public void setUnitState(UnitState unitState) {
+		this.unitState = unitState;
 	}
 }

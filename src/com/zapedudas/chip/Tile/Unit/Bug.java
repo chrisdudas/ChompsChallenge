@@ -14,6 +14,9 @@ public class Bug extends Unit {
 
 	@Override
 	public String getCurrentImagePath() {
+		String imagePath = super.getCurrentImagePath();
+		if (imagePath != null) return imagePath;
+		
 		switch (this.getDirection()) {
 			case UP:
 				return IMAGEPATH_UP;

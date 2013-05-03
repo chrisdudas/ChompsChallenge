@@ -1,9 +1,9 @@
 package com.zapedudas.chip.Tile.Item;
 
-public class Bone extends Item {
-	private String IMAGEPATH = "bone.png";
-
-	public Bone(int x, int y) {
+public class WaterBoots extends Item {
+	private final String IMAGEPATH = "flippers.png";
+	
+	public WaterBoots(int x, int y) {
 		super(x, y);
 	}
 

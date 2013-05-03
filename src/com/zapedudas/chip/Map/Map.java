@@ -1,4 +1,4 @@
-package com.zapedudas.chip.Map;
+package com.zapedudas.chip.map;
 
 import java.lang.reflect.Constructor;
 
@@ -7,11 +7,13 @@ import java.util.Arrays;
 
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.TileMapping;
+import com.zapedudas.chip.Tile.Item.Item;
 import com.zapedudas.chip.Tile.Unit.Unit;
 
 public class Map {
 	private String levelName;
-	private Tile[][][] mapMatrix;
+//	private Tile[][][] mapMatrix;
+	private MapSquare[][] mapSquareMatrix;
 	
 	private int width;
 	private int height;
@@ -37,21 +39,30 @@ public class Map {
 	private void parseMapData(String[] mapData) {
 		this.height = mapData.length;
 		this.width = mapData[0].split(",").length;
-		mapMatrix = new Tile[this.height][this.width][2];		
+		mapSquareMatrix = new MapSquare[this.height][this.width];
 		
 		for (int row = 0; row < this.height; row++) {
 			String[] columns = mapData[row].split(",");
 			
 			for (int col = 0; col < this.width; col++) {
+				MapSquare square = new MapSquare();
+
 				String[] elements = columns[col].split(" ");
+				if (elements.length >= 1) square.setGroundTile(spawnTile(elements[0], col, row));
+				if (elements.length >= 2) {
+					for (int i = 1; i < elements.length; i++) {
+						Tile tile = spawnTile(elements[i], col, row);
+						
+						if (Unit.class.isInstance(tile)) {
+							square.addUnitTile(tile);
+						}
+						else if (Item.class.isInstance(tile)) {
+							square.setItemTile(tile);
+						}
+					}
+				}
 				
-				Tile floor = null;
-				Tile unit = null;
-				
-				if (elements.length >= 1) floor = spawnTile(elements[0], col, row);
-				if (elements.length >= 2) unit = spawnTile(elements[1], col, row);
-				
-				mapMatrix[row][col] = new Tile[] { floor, unit };
+				mapSquareMatrix[row][col] = square;
 			}
 		}
 	}
@@ -96,29 +107,18 @@ public class Map {
 		return height;
 	}
 	
-	public Tile[][][] getMapMatrix() {
-		return mapMatrix;
+	public MapSquare[][] getMapMatrix() {
+		return this.mapSquareMatrix;
 	}
 	
-	public Tile[] getTilesAt(int x, int y) {
-		return mapMatrix[y][x];
+	public MapSquare getSquareAt(int x, int y) {
+		return mapSquareMatrix[y][x];
 	}
 	
-	public Tile getFloorAt(int x, int y) {
-		return getTilesAt(x, y)[0];
-	}
-	
-	public Unit getUnitAt(int x, int y) {
-		return (Unit)getTilesAt(x, y)[1];
-	}
-	
-	public void setUnitAt(int x, int y, Tile tile) {
-		mapMatrix[y][x][1] = tile;
-	}
-	
-	public void moveUnitTileFromCoordsToCoords(int old_x, int old_y, int new_x, int new_y) {
-		Tile tile = getUnitAt(old_x, old_y);
-		setUnitAt(old_x, old_y, null);
-		setUnitAt(new_x, new_y, tile);
-	}
+
+//	public void moveUnitTileFromCoordsToCoords(int old_x, int old_y, int new_x, int new_y) {
+//		Tile tile = getUnitAt(old_x, old_y);
+//		setUnitAt(old_x, old_y, null);
+//		setUnitAt(new_x, new_y, tile);
+//	}
 }
