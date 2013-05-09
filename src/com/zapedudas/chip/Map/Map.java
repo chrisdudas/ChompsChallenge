@@ -3,6 +3,7 @@ package com.zapedudas.chip.map;
 import java.lang.reflect.Constructor;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.zapedudas.chip.Tile.Tile;
@@ -115,7 +116,23 @@ public class Map {
 		return mapSquareMatrix[y][x];
 	}
 	
-
+	public Tile[] getTilesOfType(Class<?> type) {
+		ArrayList<Tile> matches = new ArrayList<Tile>();
+		
+		for (int y = 0; y < getHeight(); y++) {
+			for (int x = 0; x < getWidth(); x++) {
+				Tile[] tiles = mapSquareMatrix[y][x].toArray();
+				
+				for (Tile tile : tiles) {
+					if (type.isInstance(tile)) {
+						matches.add(tile);
+					}
+				}
+			}
+		}
+		
+		return matches.toArray(new Tile[matches.size()]);
+	}
 //	public void moveUnitTileFromCoordsToCoords(int old_x, int old_y, int new_x, int new_y) {
 //		Tile tile = getUnitAt(old_x, old_y);
 //		setUnitAt(old_x, old_y, null);

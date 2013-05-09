@@ -1,9 +1,7 @@
 package com.zapedudas.chip.Tile.Driver;
 
 import com.zapedudas.chip.map.Map;
-import com.zapedudas.chip.map.Message;
 import com.zapedudas.chip.map.MessageDispatcher;
-import com.zapedudas.chip.map.Message.MessageType;
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.Driver.CollisionManager.Result;
 import com.zapedudas.chip.Tile.Tile.Directions;
@@ -133,5 +131,30 @@ public abstract class Driver {
 	
 	public Class<?> getCurrentGroundTileType() {
 		return map.getSquareAt(this.unit.getX(), this.unit.getY()).getGroundTile().getClass();
+	}
+	
+	protected Tile getClosestTileOfType(Class<?> type) {
+		Tile[] tiles = map.getTilesOfType(type);
+		
+		Tile closestTile = null;
+		double closestTileDistance = 0;
+		
+		int unitX = unit.getX();
+		int unitY = unit.getY();
+		
+		for (Tile tile : tiles) {
+			double distance = Math.sqrt( Math.abs( Math.pow(tile.getX() - unitX, 2) + Math.pow(tile.getY() - unitY, 2) ) );
+			
+			if (distance > 0 && (closestTileDistance == 0 || distance < closestTileDistance)) {
+				closestTile = tile;
+				closestTileDistance = distance;
+			}
+		}
+		
+		return closestTile;
+	}
+	
+	protected double distanceToTileFromCoords(Tile target, int x, int y) {
+		return Math.sqrt( Math.abs( Math.pow(target.getX() - x, 2) + Math.pow(target.getY() - y, 2) ) );
 	}
 }

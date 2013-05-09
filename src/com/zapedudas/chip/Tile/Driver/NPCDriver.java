@@ -3,7 +3,6 @@ package com.zapedudas.chip.Tile.Driver;
 import com.zapedudas.chip.map.Map;
 import com.zapedudas.chip.map.MessageDispatcher;
 import com.zapedudas.chip.Tile.Unit.Unit;
-import com.zapedudas.chip.Tile.Unit.Unit.UnitState;
 
 public abstract class NPCDriver extends Driver {
 	public NPCDriver(Unit unit, Map map, MessageDispatcher messageDispatcher) {

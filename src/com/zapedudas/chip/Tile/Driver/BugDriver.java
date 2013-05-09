@@ -39,10 +39,4 @@ public class BugDriver extends NPCDriver {
 			if (tryMoveInDirection(direction)) break;
 		}
 	}
-
-//	@Override
-//	public void killUnit() {
-////		map.setUnitAt(this.unit.getX(), this.unit_y, null);
-//		
-//	}
 }

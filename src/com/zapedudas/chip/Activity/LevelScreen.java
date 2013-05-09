@@ -193,6 +193,24 @@ public class LevelScreen extends PApplet {
 		image(imageCache.getPImage(ARROW_LEFT), 10, height - ( 2 * buttonSize + 60), buttonSize, buttonSize);
 		image(imageCache.getPImage(ARROW_RIGHT), 10 + (2 * buttonSize), height - (2 * buttonSize + 60), buttonSize, buttonSize);
 		image(imageCache.getPImage(ARROW_DOWN), 10 + buttonSize, height - (buttonSize + 60), buttonSize, buttonSize); 
+		
+		// Draw inventory overlay
+		String inventoryTxt = "";
+		for (Item item : localPlayerDriver.getInventory().getItems()) {
+			inventoryTxt += inventoryTxt != "" ? "\n" : "";
+			inventoryTxt += item.getCurrentImagePath();
+		}
+		
+//		PShape shp = createShape();
+		
+		text(inventoryTxt, 10, 10);
+		
+//		PGraphics box = createGraphics(200, localPlayerDriver.getInventory().getItems().length * 40 + 1);
+//		box.beginDraw();
+//		box.background(180, 180, 180, 255);
+//		box.text(inventoryTxt, 10, 10);
+//		box.rect(a, b, c, d)
+//		box.endDraw();
 	}
 		
 	private void drawTileIfPresent(Tile tile, int x, int y) {

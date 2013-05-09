@@ -20,6 +20,7 @@ public class TileMapping {
 		tileMap.put(100, Player.class);
 		
 		tileMap.put(16, Bug.class);
+		tileMap.put(17, Teeth.class);
 	}
 	
 	public static Class<?> getClassFromID(int tileID) {
