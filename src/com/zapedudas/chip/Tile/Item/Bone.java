@@ -8,7 +8,7 @@ public class Bone extends Item {
 	}
 
 	@Override
-	public String getCurrentImagePath() {
+	public String getCurrentImagePath() {  
 		return IMAGEPATH;
 	}
 

@@ -73,14 +73,37 @@ public class MapSquare {
 //	}
 	
 	public Tile[] toArray() {
-		Tile[] tiles = new Tile[2 + getUnitTiles().length];
-		tiles[0] = getGroundTile();
-		tiles[1] = getItemTile();
+		ArrayList<Tile> tiles = new ArrayList<Tile>();
 		
-		for (int i = 2; i < getUnitTiles().length + 2; i++) {
-			tiles[i] = getUnitTiles()[i - 2];
+		if (groundTile != null) tiles.add(groundTile);
+		if (itemTile != null) tiles.add(itemTile);
+		
+		for (Tile unitTile : unitTiles) {
+			if (unitTile != null) tiles.add(unitTile);
 		}
 		
-		return tiles;
+		return tiles.toArray(new Tile[tiles.size()]);
+//		
+//		Tile[] tiles = new Tile[2 + getUnitTiles().length];
+//		tiles[0] = getGroundTile();
+//		tiles[1] = getItemTile();
+//		
+//		for (int i = 2; i < getUnitTiles().length + 2; i++) {
+//			tiles[i] = getUnitTiles()[i - 2];
+//		}
+//		
+//		return tiles;
+	}
+	
+	public Tile[] toArrayTopLayer() {
+		ArrayList<Tile> tiles = new ArrayList<Tile>();
+		
+		if (itemTile != null) tiles.add(itemTile);
+		
+		for (Tile unitTile : unitTiles) {
+			if (unitTile != null) tiles.add(unitTile);
+		}
+		
+		return tiles.toArray(new Tile[tiles.size()]);		
 	}
 }

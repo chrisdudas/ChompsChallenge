@@ -108,8 +108,7 @@ public abstract class Driver {
 		map.getSquareAt(this.unit.getX(), this.unit.getY()).removeUnitTile(unit);
 		map.getSquareAt(intent_x, intent_y).addUnitTile(this.unit);
 		
-		unit.setX(intent_x);
-		unit.setY(intent_y);
+		unit.move(direction);
 		unit.setDirection(direction);
 		
 		return true;

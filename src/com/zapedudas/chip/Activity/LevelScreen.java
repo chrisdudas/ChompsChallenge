@@ -30,7 +30,12 @@ public class LevelScreen extends PApplet {
 	private final int BACKGROUND_G = 88;
 	private final int BACKGROUND_B = 58;
 	
-	private final int MILLIS_PER_STEP = 100;
+	/* Milliseconds between each driver 'tick' */
+	private final int MILLIS_PER_DRIVER_STEP = 100;
+	/* Milliseconds between each animation 'tick' */
+	private final int MILLIS_PER_ANIMATION_STEP = 10;
+	
+	private final int FRAMES_PER_SECOND = 60;
 	
 	private Map map;
 	private int viewradii_x;
@@ -40,7 +45,9 @@ public class LevelScreen extends PApplet {
 	private int tile_width;
 	private int tile_height;	
 	private ImageCache imageCache;
-	private int lastStep = 0;
+	
+	private int lastDriverStep = 0;
+	private int lastAnimationStep = 0;
 	
 	private ArrayList<Driver> drivers;
 	private MessageDispatcher messageDispatcher;
@@ -81,7 +88,7 @@ public class LevelScreen extends PApplet {
 		
 		this.background(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 		
-		this.frameRate(60);
+		this.frameRate(FRAMES_PER_SECOND);
 		
 		setupLevel();
 	}
@@ -98,8 +105,6 @@ public class LevelScreen extends PApplet {
 		
 		for (int row = 0; row < map.getHeight(); row++) {
 			for (int col = 0; col < map.getWidth(); col++) {
-//				Unit unit = map.getUnitAt(col, row);
-				
 				Unit[] units = map.getSquareAt(col, row).getUnits();
 				
 				Unit unit = null;
@@ -169,22 +174,36 @@ public class LevelScreen extends PApplet {
 		else if (localPlayer.getY() >= map.getHeight() - this.viewradii_y) screen_y = map.getHeight() - this.viewsize_y;
 		else screen_y = localPlayer.getY() - this.viewradii_y;	
 		
-		if (lastStep == 0 || lastStep + MILLIS_PER_STEP < millis()) {
-			lastStep = millis();
+		if (lastDriverStep == 0 || lastDriverStep + MILLIS_PER_DRIVER_STEP < millis()) {
+			lastDriverStep = millis();
 			triggerDrivers();
 			handleMessages();
 		}
-	
+			
+		// Draw bottom layer (ground tiles)
 		for (int row = screen_y; row < screen_y + viewsize_y; row++) {
 			for (int col = screen_x; col < screen_x + viewsize_x; col++) {
 				MapSquare tileStack = this.map.getSquareAt(col, row);
 				
-				for (Tile tile: tileStack.toArray()) {
+				drawTileIfPresent(tileStack.getGroundTile(), col - screen_x, row - screen_y);
+			}
+		}
+		
+		boolean shouldTickAnimations = false;
+		if (lastAnimationStep == 0 || lastAnimationStep + MILLIS_PER_ANIMATION_STEP < millis()) {
+			lastAnimationStep = millis();
+			shouldTickAnimations = true;
+		}
+		
+		// Draw upper layers (items, units)
+		for (int row = screen_y; row < screen_y + viewsize_y; row++) {
+			for (int col = screen_x; col < screen_x + viewsize_x; col++) {
+				MapSquare tileStack = this.map.getSquareAt(col, row);		
+
+				for (Tile tile: tileStack.toArrayTopLayer()) {
+					if (shouldTickAnimations) tile.tickAnimation();
 					drawTileIfPresent(tile, col - screen_x, row - screen_y);
 				}
-				
-//				drawTileIfPresent(tileStack.getGroundTile(), col - screen_x, row - screen_y);
-//				drawTileIfPresent(tileStack.getUnitTile(), col - screen_x, row - screen_y);	
 			}
 		}
 		
@@ -200,27 +219,25 @@ public class LevelScreen extends PApplet {
 			inventoryTxt += inventoryTxt != "" ? "\n" : "";
 			inventoryTxt += item.getCurrentImagePath();
 		}
-		
-//		PShape shp = createShape();
-		
 		text(inventoryTxt, 10, 10);
-		
-//		PGraphics box = createGraphics(200, localPlayerDriver.getInventory().getItems().length * 40 + 1);
-//		box.beginDraw();
-//		box.background(180, 180, 180, 255);
-//		box.text(inventoryTxt, 10, 10);
-//		box.rect(a, b, c, d)
-//		box.endDraw();
 	}
 		
 	private void drawTileIfPresent(Tile tile, int x, int y) {
 		if (tile == null) return;
 		
+//		if (Player.class.isInstance(tile) && (tile.getOffsetPercentX() != 0 || tile.getOffsetPercentY() != 0)) {
+//			
+//		}
+		
 		PImage tileImage = this.imageCache.getPImage(tile.getCurrentImagePath());
 		
 		int loc_x = this.tile_width * x;
 		int loc_y = this.tile_height * y;
-		image(tileImage, loc_x, loc_y, this.tile_width, this.tile_height);	
+		
+		float offset_loc_x = loc_x + (this.tile_width * tile.getOffsetPercentX());
+		float offset_loc_y = loc_y + (this.tile_height * tile.getOffsetPercentY());
+		
+		image(tileImage, offset_loc_x, offset_loc_y, this.tile_width, this.tile_height);	
 	}
 	
 	private void triggerDrivers() {

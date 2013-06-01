@@ -56,6 +56,8 @@ public abstract class Unit extends Tile{
 				this.setX(this.getX() + 1);
 				break;
 		}
+		
+		beginAnimation(direction);
 	}
 
 	/**
@@ -68,9 +70,8 @@ public abstract class Unit extends Tile{
 	/**
 	 * This is simply move the unit to the given coords
 	 */
-	public void moveTo(int X, int Y) {
-		this.setX(X);
-		this.setY(Y);
+	public void moveTo(int x, int y) {
+		this.setCoords(x, y);
 	}
 	
 	@Override
@@ -79,6 +80,11 @@ public abstract class Unit extends Tile{
 		else if (property.equals("DOWN")) setDirection(Directions.DOWN);
 		else if (property.equals("LEFT")) setDirection(Directions.LEFT);
 		else if (property.equals("RIGHT")) setDirection(Directions.RIGHT);
+	}
+	
+	@Override
+	protected AnimationMode getAnimationMode() {
+		return AnimationMode.MOVEMENT;
 	}
 	
 	/**
