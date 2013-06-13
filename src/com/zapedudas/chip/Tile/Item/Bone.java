@@ -12,4 +12,9 @@ public class Bone extends Item {
 		return IMAGEPATH;
 	}
 
+	@Override
+	public String getInventoryIcon() {
+		return "bone.png";
+	}
+
 }

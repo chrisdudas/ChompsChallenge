@@ -86,8 +86,6 @@ public class LevelScreen extends PApplet {
 		
 		this.buttonSize = this.width / 6; // 6?
 		
-		this.background(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
-		
 		this.frameRate(FRAMES_PER_SECOND);
 		
 		setupLevel();
@@ -164,28 +162,49 @@ public class LevelScreen extends PApplet {
 	
 	public void draw()
 	{
+		this.background(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
+
 		int screen_x;
+		float screen_x_offset = 0;		
 		if (localPlayer.getX() < this.viewradii_x) screen_x = 0;
 		else if (localPlayer.getX() >= map.getWidth() - this.viewradii_x) screen_x = map.getWidth() - this.viewsize_x;
-		else screen_x = localPlayer.getX() - this.viewradii_x;		
-		
+		else {
+			screen_x = localPlayer.getX() - this.viewradii_x;
+			
+			if (!(localPlayer.getX() == this.viewradii_x && localPlayer.getMovementAnimationDirection() == Directions.RIGHT)
+			 && !(localPlayer.getX() == map.getWidth() - this.viewradii_x - 1 && localPlayer.getMovementAnimationDirection() == Directions.LEFT)) {					
+				screen_x_offset = this.tile_width * localPlayer.getOffsetPercentX();
+			}
+		}
+				
 		int screen_y;
+		float screen_y_offset = 0;
 		if (localPlayer.getY() < this.viewradii_y) screen_y = 0;
 		else if (localPlayer.getY() >= map.getHeight() - this.viewradii_y) screen_y = map.getHeight() - this.viewsize_y;
-		else screen_y = localPlayer.getY() - this.viewradii_y;	
+		else {
+			screen_y = localPlayer.getY() - this.viewradii_y;	
+
+			if (!(localPlayer.getY() == this.viewradii_y && localPlayer.getMovementAnimationDirection() == Directions.DOWN)
+			 && !(localPlayer.getY() == map.getHeight() - this.viewradii_y - 1 && localPlayer.getMovementAnimationDirection() == Directions.UP)) {					
+				screen_y_offset =  this.tile_height * localPlayer.getOffsetPercentY();
+			}
+		}
+		
 		
 		if (lastDriverStep == 0 || lastDriverStep + MILLIS_PER_DRIVER_STEP < millis()) {
 			lastDriverStep = millis();
 			triggerDrivers();
 			handleMessages();
 		}
-			
+		// // When drawing need to start 1 before and finish 1 after the viewport so the tiles can animate in at the edge 
+		
 		// Draw bottom layer (ground tiles)
-		for (int row = screen_y; row < screen_y + viewsize_y; row++) {
-			for (int col = screen_x; col < screen_x + viewsize_x; col++) {
-				MapSquare tileStack = this.map.getSquareAt(col, row);
+		for (int row = screen_y - 1; row < screen_y + viewsize_y + 1; row++) {
+			for (int col = screen_x - 1; col < screen_x + viewsize_x + 1; col++) {
+				if (col < 0 || col >= map.getWidth() || row < 0 || row >= map.getHeight()) continue;
 				
-				drawTileIfPresent(tileStack.getGroundTile(), col - screen_x, row - screen_y);
+				MapSquare tileStack = this.map.getSquareAt(col, row);
+				drawTileIfPresent(tileStack.getGroundTile(), col - screen_x, row - screen_y, screen_x_offset, screen_y_offset);
 			}
 		}
 		
@@ -196,13 +215,14 @@ public class LevelScreen extends PApplet {
 		}
 		
 		// Draw upper layers (items, units)
-		for (int row = screen_y; row < screen_y + viewsize_y; row++) {
-			for (int col = screen_x; col < screen_x + viewsize_x; col++) {
+		for (int row = screen_y - 1; row < screen_y + viewsize_y + 1; row++) {
+			for (int col = screen_x - 1; col < screen_x + viewsize_x + 1; col++) {
+				if (col < 0 || col >= map.getWidth() || row < 0 || row >= map.getHeight()) continue;
+				
 				MapSquare tileStack = this.map.getSquareAt(col, row);		
-
 				for (Tile tile: tileStack.toArrayTopLayer()) {
 					if (shouldTickAnimations) tile.tickAnimation();
-					drawTileIfPresent(tile, col - screen_x, row - screen_y);
+					drawTileIfPresent(tile, col - screen_x, row - screen_y, screen_x_offset, screen_y_offset);
 				}
 			}
 		}
@@ -222,20 +242,17 @@ public class LevelScreen extends PApplet {
 		text(inventoryTxt, 10, 10);
 	}
 		
-	private void drawTileIfPresent(Tile tile, int x, int y) {
+	private void drawTileIfPresent(Tile tile, int x, int y, float screen_x_offset, float screen_y_offset) {
 		if (tile == null) return;
 		
-//		if (Player.class.isInstance(tile) && (tile.getOffsetPercentX() != 0 || tile.getOffsetPercentY() != 0)) {
-//			
-//		}
-		
-		PImage tileImage = this.imageCache.getPImage(tile.getCurrentImagePath());
+		String imagePath = tile.getCurrentImagePath();
+		PImage tileImage = this.imageCache.getPImage(imagePath);
 		
 		int loc_x = this.tile_width * x;
 		int loc_y = this.tile_height * y;
 		
-		float offset_loc_x = loc_x + (this.tile_width * tile.getOffsetPercentX());
-		float offset_loc_y = loc_y + (this.tile_height * tile.getOffsetPercentY());
+		float offset_loc_x = loc_x + (this.tile_width * tile.getOffsetPercentX()) - screen_x_offset;
+		float offset_loc_y = loc_y + (this.tile_height * tile.getOffsetPercentY()) - screen_y_offset;
 		
 		image(tileImage, offset_loc_x, offset_loc_y, this.tile_width, this.tile_height);	
 	}
@@ -259,24 +276,15 @@ public class LevelScreen extends PApplet {
 			MessageType messageType = message.getMessageType();
 			
 			if (messageType == MessageType.UNIT_KILLED) {
-//				Unit unit = (Unit)message.getSubject();
-//				unit.getDriver().killUnit();
+
 			}
 			else if (messageType == MessageType.PLAYER_HAS_DIED) {
-				String invenString = "";
-				
-				for (Item item : localPlayerDriver.getInventory().getItems()) {
-					invenString += item.getCurrentImagePath() + "\n";
-				}
-				
-				final String finalinvenString = invenString;				
-				
 				setupLevel();
 				
 				final Context context = this;
 				this.runOnUiThread(new Runnable() {
 					public void run() {
-						Toast.makeText(context, finalinvenString + "You dead sucka!!!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, "You dead sucka!!!", Toast.LENGTH_SHORT).show();
 					}
 				});
 				return;

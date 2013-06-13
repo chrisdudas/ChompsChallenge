@@ -38,11 +38,8 @@ public abstract class Driver {
 		if (unit.getUnitState() != UnitState.ALIVE) {
 			ticksSinceDeath++;
 			
-			if (ticksSinceDeath >= getDyingDuration()) {
-				// DESTROY UNIT INSTANCE 
+			if (ticksSinceDeath >= getDyingDuration()) { // Unit has died, destroy
 				this.map.getSquareAt(unit.getX(), unit.getY()).removeUnitTile(unit);
-				
-				// `STOP` DRIVER INSTANCE
 				stopDriver();
 			}
 		}
@@ -95,13 +92,10 @@ public abstract class Driver {
 			
 			if (tileAtNew == null) continue;
 			
-			CollisionManager.Result collisionResult = CollisionManager.handleCollision(this.unit, tileAtNew);
+			CollisionManager.Result collisionResult = CollisionManager.handleCollision(this.unit, tileAtNew);  
 			
 			if (collisionResult == Result.BLOCKED) {
 				return false;
-			}
-			else if (collisionResult == Result.DIED) {	
-				break;
 			}
 		}
 		

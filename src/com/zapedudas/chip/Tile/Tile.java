@@ -7,16 +7,10 @@ public abstract class Tile {
 	private int x;
 	private int y;
 
-	private int animation_counter = 0;
-	
-	private boolean animation_movement_active = false;
 	private Directions animation_movement_direction = null;
 	private int animation_steps = 0;
-//	private int animation_movement_offset_x_percent = 0;
-//	private int animation_movement_offset_y_percent = 0;
 	
 	public enum AnimationMode {
-		NONE,
 		MOVEMENT,
 		INPLACE
 	}
@@ -63,93 +57,65 @@ public abstract class Tile {
 	}
 	
 	protected void beginAnimation(Directions direction) {
-		this.animation_movement_active = true;
 		this.animation_movement_direction = direction;
 		this.animation_steps = 1;
-		
-//		switch (direction) {
-//		case UP:
-//			animation_movement_offset_y_percent = 90;
-//			break;
-//		case RIGHT:
-//			animation_movement_offset_x_percent = -90;
-//			break;
-//		case DOWN:
-//			animation_movement_offset_y_percent = -90;
-//			break;
-//		case LEFT:
-//			animation_movement_offset_x_percent = 90;
-//			break;
-//		}
 	}
 	
 	/**
 	 * Increase the animation counter by 1, resulting in possible changes to tile's appearances when redrawn
 	 */
 	public void tickAnimation() {
-		animation_counter += 1;
-		
-		if (getAnimationMode() == AnimationMode.MOVEMENT && animation_movement_active) {
+		if (isAnimatingMovement()) {
 			if (animation_steps >= ANIMATION_FRAMES_TOTAL) {
-				animation_movement_active = false;
 				animation_movement_direction = null;
-//				animation_movement_offset_x_percent = 0;
-//				animation_movement_offset_y_percent = 0;
 				animation_steps = 0;
 			}
 			else {
 				animation_steps += 1;
-//				switch (animation_movement_direction) {
-//					case UP:
-//						animation_movement_offset_y_percent += 10;
-//						break;
-//					case RIGHT:
-//						animation_movement_offset_x_percent -= 10;
-//						break;
-//					case DOWN:
-//						animation_movement_offset_y_percent -= 10;
-//						break;
-//					case LEFT:
-//						animation_movement_offset_x_percent += 10;
-//						break;
-//				}
-//				
-//				animation_counter = animation_counter % ANIMATION_FRAMES_TOTAL;
 			}
 		}		
 	}
 	
 	protected AnimationMode getAnimationMode() {
-		return AnimationMode.INPLACE;
+		return null;
+	}
+	
+	public boolean isAnimatingMovement() {
+		return getAnimationMode() == AnimationMode.MOVEMENT && animation_movement_direction != null;
+	}
+	
+	protected float getAnimationPercent() {
+		return (float)animation_steps / (float)ANIMATION_FRAMES_TOTAL;
 	}
 	
 	public float getOffsetPercentX() {
-		float animationPercent = (float)animation_steps / (float)ANIMATION_FRAMES_TOTAL;
+		if (animation_movement_direction == null) return 0;
 		
-		if (animation_movement_direction == Directions.RIGHT) {
-			return -1 * (1 - animationPercent);
+		switch (animation_movement_direction) {
+			case RIGHT:
+				return -1 * (1 - getAnimationPercent());
+			case LEFT:
+				return 1 - getAnimationPercent();
+			default:
+				return 0;
 		}
-		else if (animation_movement_direction == Directions.LEFT) {
-			return 1 - animationPercent;
-		}
-		else {
-			return 0;
-		}
-//		return animation_movement_offset_x_percent;
 	}
 	
 	public float getOffsetPercentY() {
-		float animationPercent = (float)animation_steps / (float)ANIMATION_FRAMES_TOTAL;
+		if (animation_movement_direction == null) return 0;
 		
-		if (animation_movement_direction == Directions.DOWN) {
-			return -1 * (1 - animationPercent);
+		switch (animation_movement_direction) {
+			case DOWN:
+				return -1 * (1 - getAnimationPercent());
+			case UP:
+				return 1 - getAnimationPercent();
+			default:
+					return 0;
 		}
-		else if (animation_movement_direction == Directions.UP) {
-			return 1 - animationPercent;
-		}
-		else {
-			return 0;
-		}
+	}
+	
+	public Directions getMovementAnimationDirection() {
+		return isAnimatingMovement() ? animation_movement_direction : null;
 	}
 
 	public abstract String getCurrentImagePath();

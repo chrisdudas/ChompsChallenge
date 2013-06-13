@@ -53,13 +53,13 @@ public class CollisionManager {
 				(class1.isInstance(tile2) && class2.isInstance(tile1));
 	}
 	
-	private static boolean isCollisionBetween(Tile tile1, Tile tile2, Class<?> class1, Class<?> class2, Class<?>[] excludingClasses) {
-		for (Class<?> cls : excludingClasses) {
-			if (cls.isInstance(tile1) || cls.isInstance(tile2)) return false;
-		}
-		
-		return isCollisionBetween(tile1, tile2, class1, class2);
-	}
+//	private static boolean isCollisionBetween(Tile tile1, Tile tile2, Class<?> class1, Class<?> class2, Class<?>[] excludingClasses) {
+//		for (Class<?> cls : excludingClasses) {
+//			if (cls.isInstance(tile1) || cls.isInstance(tile2)) return false;
+//		}
+//		
+//		return isCollisionBetween(tile1, tile2, class1, class2);
+//	}
 	
 	private static Tile getTileOfType(Tile[] tiles, Class<?> classToMatch) {
 		for (Tile tile : tiles) {

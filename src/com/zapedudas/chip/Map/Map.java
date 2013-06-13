@@ -13,7 +13,6 @@ import com.zapedudas.chip.Tile.Unit.Unit;
 
 public class Map {
 	private String levelName;
-//	private Tile[][][] mapMatrix;
 	private MapSquare[][] mapSquareMatrix;
 	
 	private int width;
@@ -133,9 +132,4 @@ public class Map {
 		
 		return matches.toArray(new Tile[matches.size()]);
 	}
-//	public void moveUnitTileFromCoordsToCoords(int old_x, int old_y, int new_x, int new_y) {
-//		Tile tile = getUnitAt(old_x, old_y);
-//		setUnitAt(old_x, old_y, null);
-//		setUnitAt(new_x, new_y, tile);
-//	}
 }

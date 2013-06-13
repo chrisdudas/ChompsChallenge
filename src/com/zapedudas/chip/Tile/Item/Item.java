@@ -11,4 +11,6 @@ public abstract class Item extends Tile {
 	@Override
 	public void sendTileProperty(String property) {
 	}
+	
+	public abstract String getInventoryIcon();
 }

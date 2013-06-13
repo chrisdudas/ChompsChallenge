@@ -26,20 +26,15 @@ public abstract class Unit extends Tile{
 	
 	@Override
 	public String getCurrentImagePath() {
-		switch (this.unitState) {
-			case DYING:
-				return IMAGEPATH_DYING;
-			case DROWNING:
-				return IMAGEPATH_DROWNING;
-			case BURNING:
-				return IMAGEPATH_BURNING;
-			default:
-				return null;
-		}
+		if (isAnimatingMovement() && getAnimationPercent() < 0.5) return null;
+		else if (this.unitState == UnitState.DYING) return IMAGEPATH_DYING;
+		else if (this.unitState == UnitState.DROWNING) return IMAGEPATH_DROWNING;
+		else if (this.unitState == UnitState.BURNING) return IMAGEPATH_BURNING;
+		else return null;
 	}
 	
 	/**
-	 * Move this unit 1 space in the given direction
+	 * Move this unit 1 space in the given direction, animating the movement
 	 */
 	public void move(Directions direction) {
 		switch (direction) {
@@ -60,15 +55,15 @@ public abstract class Unit extends Tile{
 		beginAnimation(direction);
 	}
 
-	/**
-	 * Move this unit to another unit. This is effectively saying jump this unit to given unit's location
-	 */
-	public void moveTo(Tile tile) {
-		moveTo(tile.getX(), tile.getY());
-	}
+//	/**
+//	 * Move this unit to another tile.
+//	 */
+//	public void moveTo(Tile tile) {
+//		moveTo(tile.getX(), tile.getY());
+//	}
 		
 	/**
-	 * This is simply move the unit to the given coords
+	 * This is simply move the unit to the given co-ords
 	 */
 	public void moveTo(int x, int y) {
 		this.setCoords(x, y);
@@ -89,6 +84,7 @@ public abstract class Unit extends Tile{
 	
 	/**
 	 * Get the driver that should drive this unit as a class
+	 * TODO: maybe turn this into a driver constructor?
 	 * @return The Class<?> of the unit's driver
 	 */
 	public abstract Class<?> getUnitDriverType();

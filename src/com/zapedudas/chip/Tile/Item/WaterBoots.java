@@ -12,4 +12,9 @@ public class WaterBoots extends Item {
 		return IMAGEPATH;
 	}
 
+	@Override
+	public String getInventoryIcon() {
+		return "flippers.png";
+	}
+
 }

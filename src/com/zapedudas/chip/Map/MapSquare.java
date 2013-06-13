@@ -68,31 +68,18 @@ public class MapSquare {
 		unitTiles.remove(unitToRemove);
 	}
 	
-//	public void clearUnitTiles() {
-//		this.unitTiles = new Tile[2];
-//	}
-	
 	public Tile[] toArray() {
 		ArrayList<Tile> tiles = new ArrayList<Tile>();
-		
-		if (groundTile != null) tiles.add(groundTile);
-		if (itemTile != null) tiles.add(itemTile);
 		
 		for (Tile unitTile : unitTiles) {
 			if (unitTile != null) tiles.add(unitTile);
 		}
 		
+		if (itemTile != null) tiles.add(itemTile);
+		
+		if (groundTile != null) tiles.add(groundTile);
+		
 		return tiles.toArray(new Tile[tiles.size()]);
-//		
-//		Tile[] tiles = new Tile[2 + getUnitTiles().length];
-//		tiles[0] = getGroundTile();
-//		tiles[1] = getItemTile();
-//		
-//		for (int i = 2; i < getUnitTiles().length + 2; i++) {
-//			tiles[i] = getUnitTiles()[i - 2];
-//		}
-//		
-//		return tiles;
 	}
 	
 	public Tile[] toArrayTopLayer() {
