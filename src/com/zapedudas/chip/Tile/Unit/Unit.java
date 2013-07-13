@@ -54,13 +54,6 @@ public abstract class Unit extends Tile{
 		
 		beginAnimation(direction);
 	}
-
-//	/**
-//	 * Move this unit to another tile.
-//	 */
-//	public void moveTo(Tile tile) {
-//		moveTo(tile.getX(), tile.getY());
-//	}
 		
 	/**
 	 * This is simply move the unit to the given co-ords

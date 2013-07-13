@@ -1,13 +1,16 @@
 package com.zapedudas.chip.Tile.Driver;
 
+import com.zapedudas.chip.Tile.Grass;
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.Wall;
 import com.zapedudas.chip.Tile.Water;
 import com.zapedudas.chip.Tile.Item.WaterBoots;
 import com.zapedudas.chip.Tile.Unit.Bug;
+import com.zapedudas.chip.Tile.Unit.MovableBlock;
 import com.zapedudas.chip.Tile.Unit.Player;
 import com.zapedudas.chip.Tile.Unit.Unit;
 import com.zapedudas.chip.Tile.Unit.Unit.UnitState;
+import com.zapedudas.chip.map.MapSquare;
 
 public class CollisionManager {
 	public enum Result {
@@ -28,6 +31,49 @@ public class CollisionManager {
 			else {
 				localPlayerDriver.killUnit(UnitState.DROWNING);
 				return Result.DIED;
+			}
+		}
+		else if (isCollisionBetween(tile1, tile2, MovableBlock.class, Water.class)) {
+			MovableBlockDriver movableBlockDriver = (MovableBlockDriver)getDriverFromUnitOfType(tiles, MovableBlock.class);
+			movableBlockDriver.killUnit(UnitState.DROWNING);
+			return Result.DIED;
+//			MovableBlock movableBlock = (MovableBlock)getUnitOfType(tiles, MovableBlock.class);
+//			
+//			movableBlockDriver.killUnit(null);
+//			
+//			int x_modify = 0;
+//			int y_modify = 0;
+//			
+//			switch (movableBlock.getDirection()) {
+//			case UP:
+//				y_modify = -1;
+//				break;
+//			case DOWN:
+//				y_modify = +1;
+//				break;
+//			case LEFT:
+//				x_modify = -1;
+//				break;
+//			case RIGHT:
+//				x_modify = +1;
+//				break;
+//			}
+//			
+//			MapSquare mvSquare = movableBlockDriver.map.getSquareAt(movableBlock.getX() + x_modify, movableBlock.getY() + y_modify);
+//
+//			mvSquare.setGroundTile(new Water(movableBlock.getX() + x_modify, movableBlock.getY() + y_modify));
+//			
+//			return Result.DIED;
+		}
+		else if (isCollisionBetween(tile1, tile2, Player.class, MovableBlock.class)) {
+			MovableBlockDriver movableBlockDriver = (MovableBlockDriver)getDriverFromUnitOfType(tiles, MovableBlock.class);
+			Player player = (Player)getTileOfType(tiles, Player.class);
+			
+			if (movableBlockDriver.tryMoveInDirection(player.getDirection())) {
+				return Result.CANMOVE;
+			}
+			else {
+				return Result.BLOCKED;
 			}
 		}
 		else if (isCollisionBetween(tile1, tile2, Unit.class, Water.class)) {

@@ -17,7 +17,6 @@ import com.zapedudas.chip.map.Message.MessageType;
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.Driver.Driver;
 import com.zapedudas.chip.Tile.Driver.LocalPlayerDriver;
-import com.zapedudas.chip.Tile.Driver.NPCDriver;
 import com.zapedudas.chip.Tile.Item.Item;
 import com.zapedudas.chip.Tile.Tile.Directions;
 import com.zapedudas.chip.Tile.Unit.*;
@@ -164,6 +163,7 @@ public class LevelScreen extends PApplet {
 	{
 		this.background(BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 
+		// Find screen offset (x)
 		int screen_x;
 		float screen_x_offset = 0;		
 		if (localPlayer.getX() < this.viewradii_x) screen_x = 0;
@@ -176,7 +176,8 @@ public class LevelScreen extends PApplet {
 				screen_x_offset = this.tile_width * localPlayer.getOffsetPercentX();
 			}
 		}
-				
+		
+		// Find screen offset (y)
 		int screen_y;
 		float screen_y_offset = 0;
 		if (localPlayer.getY() < this.viewradii_y) screen_y = 0;
@@ -190,14 +191,14 @@ public class LevelScreen extends PApplet {
 			}
 		}
 		
-		
+		// Tick drivers
 		if (lastDriverStep == 0 || lastDriverStep + MILLIS_PER_DRIVER_STEP < millis()) {
 			lastDriverStep = millis();
 			triggerDrivers();
 			handleMessages();
 		}
-		// // When drawing need to start 1 before and finish 1 after the viewport so the tiles can animate in at the edge 
 		
+		// // When drawing need to start 1 before and finish 1 after the viewport so the tiles can animate in at the edge 
 		// Draw bottom layer (ground tiles)
 		for (int row = screen_y - 1; row < screen_y + viewsize_y + 1; row++) {
 			for (int col = screen_x - 1; col < screen_x + viewsize_x + 1; col++) {

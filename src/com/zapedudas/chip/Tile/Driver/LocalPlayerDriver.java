@@ -24,12 +24,14 @@ public class LocalPlayerDriver extends Driver {
 	}
 	
 	public void move(Directions direction) {
+		this.unit.setDirection(direction);
+		
 		if (tryMoveInDirection(direction)) {
 			pickupItems();
 		}
-		else {
-			this.unit.setDirection(direction);
-		}
+//		else {
+//			this.unit.setDirection(direction);
+//		}
 	}
 
 	private void pickupItems() {
