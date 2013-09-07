@@ -2,14 +2,16 @@ package com.zapedudas.chip.Tile.Unit;
 
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.Driver.Driver;
+import com.zapedudas.chip.map.Map;
+import com.zapedudas.chip.map.MessageDispatcher;
 
-public abstract class Unit extends Tile{
+public abstract class Unit<DriverType extends Driver<?>> extends Tile{
 	private final String IMAGEPATH_DYING = "tombstone.png";
 	private final String IMAGEPATH_DROWNING = "water_splash.png";
 	private final String IMAGEPATH_BURNING = "tombstone.png";
 	
-	Driver driver;
-	UnitState unitState;
+	private DriverType driver;
+	protected UnitState unitState;
 	
 	public enum UnitState {
 		ALIVE,
@@ -75,18 +77,18 @@ public abstract class Unit extends Tile{
 		return AnimationMode.MOVEMENT;
 	}
 	
-	/**
-	 * Get the driver that should drive this unit as a class
-	 * TODO: maybe turn this into a driver constructor?
-	 * @return The Class<?> of the unit's driver
-	 */
-	public abstract Class<?> getUnitDriverType();
-	
-	public void attachDriver(Driver driver) {
+	public void setupDriver(Map map, MessageDispatcher messageDispatcher) {
+		DriverType driver = constructDriver(map, messageDispatcher);
 		this.driver = driver;
 	}
+	
+	protected abstract DriverType constructDriver(Map map, MessageDispatcher messageDispatcher);
+	
+//	public void attachDriver(Driver<?> driver) {
+//		this.driver = driver;
+//	}
 
-	public Driver getDriver() {
+	public DriverType getDriver() {
 		return this.driver;
 	}
 	

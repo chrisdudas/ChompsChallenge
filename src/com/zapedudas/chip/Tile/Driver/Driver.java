@@ -27,7 +27,7 @@ public abstract class Driver {
 		this.unitKilled = false;
 		this.driverStopped = false;
 		
-		this.unit.attachDriver(this);
+//		this.unit.attachDriver(this);
 	}
 	
 	public void tick() {

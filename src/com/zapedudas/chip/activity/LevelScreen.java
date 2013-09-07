@@ -1,7 +1,5 @@
 package com.zapedudas.chip.activity;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -48,7 +46,7 @@ public class LevelScreen extends PApplet {
 	private int lastDriverStep = 0;
 	private int lastAnimationStep = 0;
 	
-	private ArrayList<Driver> drivers;
+	private ArrayList<Driver<?>> drivers;
 	private MessageDispatcher messageDispatcher;
 	
 	// Buttons
@@ -98,13 +96,13 @@ public class LevelScreen extends PApplet {
 		this.messageDispatcher = new MessageDispatcher();
 		
 		// setup unit drivers
-		this.drivers = new ArrayList<Driver>();
+		this.drivers = new ArrayList<Driver<?>>();
 		
 		for (int row = 0; row < map.getHeight(); row++) {
 			for (int col = 0; col < map.getWidth(); col++) {
 				Unit[] units = map.getSquareAt(col, row).getUnits();
 				
-				Unit unit = null;
+				Unit<Driver<?>> unit = null;
 				try {
 					if (units.length > 1) throw new Exception("More than one unit on square during driver scan!");
 					if (units.length == 1) unit = units[0];
@@ -116,8 +114,8 @@ public class LevelScreen extends PApplet {
 				if (unit != null) {
 					if (unit instanceof Player) {
 						localPlayer = (Player)unit;
-						this.localPlayerDriver = new LocalPlayerDriver(unit, map, messageDispatcher);
-						this.drivers.add(localPlayerDriver);
+						localPlayer.setupDriver(map, messageDispatcher);
+						localPlayerDriver = localPlayer.getDriver();
 					}
 					else {
 						setupDriverForUnit(unit);
@@ -133,30 +131,32 @@ public class LevelScreen extends PApplet {
 	}
 
 	/**
-	 * Gets the driver class from the unit, creates the driver for the unit and finally adds the driver the npcDriver collection
+	 * Instructs the unit to construct a driver, then retrieves the new driver and adds it to the list
 	 * @param unit The unit to setup the driver for
 	 */
-	private void setupDriverForUnit(Unit unit) {
-		Class<?> driverClass = unit.getUnitDriverType();
-		
-		try {
-			Constructor<?> driverConstructor = driverClass.getConstructor(Unit.class, Map.class, MessageDispatcher.class);
-			
-			Driver driver = (Driver)driverConstructor.newInstance(unit, map, messageDispatcher);
-			this.drivers.add(driver);
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
+	private void setupDriverForUnit(Unit<Driver<?>> unit) {
+		unit.setupDriver(map, messageDispatcher);
+		this.drivers.add(unit.getDriver());
+//		Class<?> driverClass = unit.getUnitDriverType();
+//		
+//		try {
+//			Constructor<?> driverConstructor = driverClass.getConstructor(Unit.class, Map.class, MessageDispatcher.class);
+//			
+//			Driver driver = (Driver)driverConstructor.newInstance(unit, map, messageDispatcher);
+//			this.drivers.add(driver);
+//		} catch (SecurityException e) {
+//			e.printStackTrace();
+//		} catch (NoSuchMethodException e) {
+//			e.printStackTrace();
+//		} catch (IllegalArgumentException e) {
+//			e.printStackTrace();
+//		} catch (InstantiationException e) {
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			e.printStackTrace();
+//		} catch (InvocationTargetException e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	public void draw()
@@ -259,15 +259,15 @@ public class LevelScreen extends PApplet {
 	}
 	
 	private void triggerDrivers() {
-		ArrayList<Driver> driversToRemove = new ArrayList<Driver>();
+		ArrayList<Driver<?>> driversToRemove = new ArrayList<Driver<?>>();
 		
-		for (Driver driver : drivers) {
+		for (Driver<?> driver : drivers) {
 			driver.tick();
 			
 			if (driver.isDriverStopped()) driversToRemove.add(driver);
 		}
 
-		for (Driver driver : driversToRemove) {
+		for (Driver<?> driver : driversToRemove) {
 			drivers.remove(driver);
 		}
 	}

@@ -2,8 +2,10 @@ package com.zapedudas.chip.Tile.Unit;
 
 import com.zapedudas.chip.Tile.Water;
 import com.zapedudas.chip.Tile.Driver.LocalPlayerDriver;
+import com.zapedudas.chip.map.Map;
+import com.zapedudas.chip.map.MessageDispatcher;
 
-public class Player extends Unit {
+public class Player extends Unit<LocalPlayerDriver> {
 	final String IMAGEPATH_UP = "dog_up.png";
 	final String IMAGEPATH_DOWN = "dog_down.png";
 	final String IMAGEPATH_LEFT = "dog_left.png";
@@ -18,7 +20,7 @@ public class Player extends Unit {
 		String imagePath = super.getCurrentImagePath();
 		if (imagePath != null) return imagePath;		
 		
-		if (Water.class == driver.getCurrentGroundTileType()) {
+		if (Water.class == this.getDriver().getCurrentGroundTileType()) {
 			switch (this.getDirection()) {
 				case UP:
 					return "dog_up_swimming.png";
@@ -49,8 +51,7 @@ public class Player extends Unit {
 	}
 	
 	@Override
-	public Class<?> getUnitDriverType() {
-		// The player/s's driver setup is handled in the map
-		return LocalPlayerDriver.class;
+	public LocalPlayerDriver constructDriver(Map map, MessageDispatcher messageDispatcher) {
+		return new LocalPlayerDriver(this, map, messageDispatcher);
 	}
 }

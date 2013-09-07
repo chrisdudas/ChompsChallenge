@@ -7,12 +7,12 @@ import com.zapedudas.chip.map.MessageDispatcher;
 import com.zapedudas.chip.map.Message.MessageType;
 import com.zapedudas.chip.Tile.Tile.Directions;
 import com.zapedudas.chip.Tile.Item.Item;
-import com.zapedudas.chip.Tile.Unit.Unit;
+import com.zapedudas.chip.Tile.Unit.Player;
 
-public class LocalPlayerDriver extends Driver {
+public class LocalPlayerDriver extends Driver<Player> {
 	private PlayerInventory inventory;
 	
-	public LocalPlayerDriver(Unit unit, Map map, MessageDispatcher messageDispatcher) {
+	public LocalPlayerDriver(Player unit, Map map, MessageDispatcher messageDispatcher) {
 		super(unit, map, messageDispatcher);
 		
 		inventory = new PlayerInventory();

@@ -2,13 +2,13 @@ package com.zapedudas.chip.Tile.Driver;
 
 import com.zapedudas.chip.Tile.Tile.Directions;
 import com.zapedudas.chip.Tile.Unit.Player;
-import com.zapedudas.chip.Tile.Unit.Unit;
+import com.zapedudas.chip.Tile.Unit.Teeth;
 import com.zapedudas.chip.map.Map;
 import com.zapedudas.chip.map.MessageDispatcher;
 
-public class TeethDriver extends NPCDriver {
+public class TeethDriver extends NPCDriver<Teeth> {
 
-	public TeethDriver(Unit unit, Map map, MessageDispatcher messageDispatcher) {
+	public TeethDriver(Teeth unit, Map map, MessageDispatcher messageDispatcher) {
 		super(unit, map, messageDispatcher);
 	}
 

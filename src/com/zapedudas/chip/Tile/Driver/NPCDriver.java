@@ -4,8 +4,8 @@ import com.zapedudas.chip.map.Map;
 import com.zapedudas.chip.map.MessageDispatcher;
 import com.zapedudas.chip.Tile.Unit.Unit;
 
-public abstract class NPCDriver extends Driver {
-	public NPCDriver(Unit unit, Map map, MessageDispatcher messageDispatcher) {
+public abstract class NPCDriver<UnitType extends Unit> extends Driver<UnitType> {
+	public NPCDriver(UnitType unit, Map map, MessageDispatcher messageDispatcher) {
 		super(unit, map, messageDispatcher);
 	}
 	

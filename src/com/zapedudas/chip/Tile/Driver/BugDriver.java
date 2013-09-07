@@ -3,10 +3,10 @@ package com.zapedudas.chip.Tile.Driver;
 import com.zapedudas.chip.map.Map;
 import com.zapedudas.chip.map.MessageDispatcher;
 import com.zapedudas.chip.Tile.Tile.Directions;
-import com.zapedudas.chip.Tile.Unit.Unit;
+import com.zapedudas.chip.Tile.Unit.Bug;
 
-public class BugDriver extends NPCDriver {
-	public BugDriver(Unit unit, Map map, MessageDispatcher messageDispatcher) {
+public class BugDriver extends NPCDriver<Bug> {
+	public BugDriver(Bug unit, Map map, MessageDispatcher messageDispatcher) {
 		super(unit, map, messageDispatcher);
 	}
 	
