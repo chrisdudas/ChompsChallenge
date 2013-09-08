@@ -1,24 +1,24 @@
 package com.zapedudas.chip.map;
 
-import java.lang.reflect.Constructor;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.zapedudas.chip.Tile.Tile;
-import com.zapedudas.chip.Tile.TileMapping;
+import com.zapedudas.chip.Tile.Driver.DrivableUnit;
 import com.zapedudas.chip.Tile.Item.Item;
-import com.zapedudas.chip.Tile.Unit.Unit;
 
 public class Map {
+	@SuppressWarnings("unused")
 	private String levelName;
 	private MapSquare[][] mapSquareMatrix;
 	
 	private int width;
 	private int height;
+	
+	private MessageDispatcher messageDispatch;
 
-	public Map(String[] levelData) {		
+	public Map(String[] levelData, MessageDispatcher messageDispatch) {	
+		this.messageDispatch = messageDispatch;
 		readLevelData(levelData);
 	}
 	
@@ -53,10 +53,10 @@ public class Map {
 					for (int i = 1; i < elements.length; i++) {
 						Tile tile = spawnTile(elements[i], col, row);
 						
-						if (Unit.class.isInstance(tile)) {
-							square.addUnitTile(tile);
+						if (tile instanceof DrivableUnit) {
+							square.addDrivableUnitTile(tile);
 						}
-						else if (Item.class.isInstance(tile)) {
+						else if (tile instanceof Item) {
 							square.setItemTile(tile);
 						}
 					}
@@ -72,31 +72,40 @@ public class Map {
 
 		int tileID = Integer.parseInt(values[0]);
 		
-		try {
-			Class<?> tileClass = TileMapping.getClassFromID(tileID);
-			Constructor<?> tileConstructor = tileClass.getConstructor(int.class, int.class);
-			Tile tile = (Tile)tileConstructor.newInstance(x, y);
-			
-			for (int i = 1; i < values.length; i++) {
-				tile.sendTileProperty(values[i]);
-			}
-			
-			return tile;
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+		Tile tile = TileSpawner.spawnTile(tileID, x, y, this, messageDispatch);
+		
+		if (tile == null) {
+			// Tile failed to spawn
+			return null;
 		}
 		
-		return null;
+		return tile;
+		
+//		try {
+//			Class<?> tileClass = TileMapping.getClassFromID(tileID);
+//			Constructor<?> tileConstructor = tileClass.getConstructor(int.class, int.class);
+//			Tile tile = (Tile)tileConstructor.newInstance(x, y);
+//			
+//			for (int i = 1; i < values.length; i++) {
+//				tile.sendTileProperty(values[i]);
+//			}
+//			
+//			return tile;
+//		} catch (SecurityException e) {
+//			e.printStackTrace();
+//		} catch (NoSuchMethodException e) {
+//			e.printStackTrace();
+//		} catch (IllegalArgumentException e) {
+//			e.printStackTrace();
+//		} catch (InstantiationException e) {
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			e.printStackTrace();
+//		} catch (InvocationTargetException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		return null;
 	}
 	
 	public int getWidth() {
@@ -118,17 +127,27 @@ public class Map {
 	public Tile[] getTilesOfType(Class<?> type) {
 		ArrayList<Tile> matches = new ArrayList<Tile>();
 		
-		for (int y = 0; y < getHeight(); y++) {
-			for (int x = 0; x < getWidth(); x++) {
-				Tile[] tiles = mapSquareMatrix[y][x].toArray();
-				
-				for (Tile tile : tiles) {
+		for (MapSquare[] row : mapSquareMatrix) {
+			for (MapSquare col : row) {
+				for (Tile tile : col.toArray()) {
 					if (type.isInstance(tile)) {
 						matches.add(tile);
 					}
 				}
 			}
 		}
+		
+//		for (int y = 0; y < getHeight(); y++) {
+//			for (int x = 0; x < getWidth(); x++) {
+//				Tile[] tiles = mapSquareMatrix[y][x].toArray();
+//				
+//				for (Tile tile : tiles) {
+//					if (type.isInstance(tile)) {
+//						matches.add(tile);
+//					}
+//				}
+//			}
+//		}
 		
 		return matches.toArray(new Tile[matches.size()]);
 	}

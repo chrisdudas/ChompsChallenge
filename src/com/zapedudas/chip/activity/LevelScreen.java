@@ -13,11 +13,10 @@ import com.zapedudas.chip.map.Message;
 import com.zapedudas.chip.map.MessageDispatcher;
 import com.zapedudas.chip.map.Message.MessageType;
 import com.zapedudas.chip.Tile.Tile;
-import com.zapedudas.chip.Tile.Driver.Driver;
-import com.zapedudas.chip.Tile.Driver.LocalPlayerDriver;
+import com.zapedudas.chip.Tile.Driver.DrivableUnit;
 import com.zapedudas.chip.Tile.Item.Item;
 import com.zapedudas.chip.Tile.Tile.Directions;
-import com.zapedudas.chip.Tile.Unit.*;
+import com.zapedudas.chip.Tile.Unit.Player;
 import com.zapedudas.chip.Tile.Unit.Unit.UnitState;
 
 import processing.core.*;
@@ -46,7 +45,8 @@ public class LevelScreen extends PApplet {
 	private int lastDriverStep = 0;
 	private int lastAnimationStep = 0;
 	
-	private ArrayList<Driver<?>> drivers;
+//	private ArrayList<Driver<?>> drivers;
+	private ArrayList<DrivableUnit> drivableUnits;
 	private MessageDispatcher messageDispatcher;
 	
 	// Buttons
@@ -62,7 +62,6 @@ public class LevelScreen extends PApplet {
 	
 	// Player/s
 	private Player localPlayer;
-	private LocalPlayerDriver localPlayerDriver;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -91,52 +90,49 @@ public class LevelScreen extends PApplet {
 	private void setupLevel() {
 		String levelFile = this.getIntent().getStringExtra("levelFile");
 		
-		this.map = new Map(loadStrings(levelFile));
 		this.imageCache = new ImageCache(this);
 		this.messageDispatcher = new MessageDispatcher();
 		
-		// setup unit drivers
-		this.drivers = new ArrayList<Driver<?>>();
+		this.map = new Map(loadStrings(levelFile), messageDispatcher);
+		
+		// Find all drivable units + player
+		this.drivableUnits = new ArrayList<DrivableUnit>();
 		
 		for (int row = 0; row < map.getHeight(); row++) {
 			for (int col = 0; col < map.getWidth(); col++) {
-				Unit[] units = map.getSquareAt(col, row).getUnits();
-				
-				Unit<Driver<?>> unit = null;
-				try {
-					if (units.length > 1) throw new Exception("More than one unit on square during driver scan!");
-					if (units.length == 1) unit = units[0];
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-				if (unit != null) {
+				DrivableUnit[] units = map.getSquareAt(col, row).getDrivableUnits();
+
+//				try {
+//					if (units.length > 1) throw new Exception("More than one unit on square during driver scan!");
+//					if (units.length == 1) unit = units[0];
+//				}
+//				catch (Exception e) {
+//					e.printStackTrace();
+//				}
+
+				for (DrivableUnit unit : units) {
 					if (unit instanceof Player) {
 						localPlayer = (Player)unit;
-						localPlayer.setupDriver(map, messageDispatcher);
-						localPlayerDriver = localPlayer.getDriver();
 					}
-					else {
-						setupDriverForUnit(unit);
-					}
+					
+					drivableUnits.add(unit);
 				}
 			}
 		}
 		
-		if (localPlayerDriver == null) {
+		if (localPlayer == null) {
 			Toast.makeText(this, "ERROR: no player found", Toast.LENGTH_LONG).show();
 			this.finish();
 		}
 	}
 
-	/**
-	 * Instructs the unit to construct a driver, then retrieves the new driver and adds it to the list
-	 * @param unit The unit to setup the driver for
-	 */
-	private void setupDriverForUnit(Unit<Driver<?>> unit) {
-		unit.setupDriver(map, messageDispatcher);
-		this.drivers.add(unit.getDriver());
+//	/**
+//	 * Instructs the unit to construct a driver, then retrieves the new driver and adds it to the list
+//	 * @param unit The unit to setup the driver for
+//	 */
+//	private void setupDriverForUnit(Unit<Driver<?>> unit) {
+//		unit.setupDriver(map, messageDispatcher);
+//		this.drivers.add(unit.getDriver());
 //		Class<?> driverClass = unit.getUnitDriverType();
 //		
 //		try {
@@ -157,7 +153,7 @@ public class LevelScreen extends PApplet {
 //		} catch (InvocationTargetException e) {
 //			e.printStackTrace();
 //		}
-	}
+//	}
 	
 	public void draw()
 	{
@@ -236,7 +232,7 @@ public class LevelScreen extends PApplet {
 		
 		// Draw inventory overlay
 		String inventoryTxt = "";
-		for (Item item : localPlayerDriver.getInventory().getItems()) {
+		for (Item item : localPlayer.getInventory().getItems()) {
 			inventoryTxt += inventoryTxt != "" ? "\n" : "";
 			inventoryTxt += item.getCurrentImagePath();
 		}
@@ -259,16 +255,16 @@ public class LevelScreen extends PApplet {
 	}
 	
 	private void triggerDrivers() {
-		ArrayList<Driver<?>> driversToRemove = new ArrayList<Driver<?>>();
+		ArrayList<DrivableUnit> unitsToRemove = new ArrayList<DrivableUnit>();
 		
-		for (Driver<?> driver : drivers) {
-			driver.tick();
+		for (DrivableUnit unit : drivableUnits) {
+			unit.tick();
 			
-			if (driver.isDriverStopped()) driversToRemove.add(driver);
+			if (unit.isDriverStopped()) unitsToRemove.add(unit);
 		}
 
-		for (Driver<?> driver : driversToRemove) {
-			drivers.remove(driver);
+		for (DrivableUnit unit : unitsToRemove) {
+			drivableUnits.remove(unit);
 		}
 	}
 	
@@ -300,22 +296,22 @@ public class LevelScreen extends PApplet {
 		if (localPlayer.getUnitState() != UnitState.ALIVE) return;
 		
 		if (mouseX >= 10+buttonSize  && mouseX <= 10+(2*buttonSize) && mouseY >= height - (3*buttonSize+60) && mouseY <= height - (2*buttonSize+60)) {
-			localPlayerDriver.move(Directions.UP);
+			localPlayer.move(Directions.UP);
 			image(imageCache.getPImage(ARROW_UP_PRESS), 10 + buttonSize, height - (3 * buttonSize + 60), buttonSize, buttonSize);
 		}
 		
 		if (mouseX >= 10 && mouseX <= 10+buttonSize && mouseY >= height - (2*buttonSize+60) && mouseY <= height - (buttonSize+60)) {
-			localPlayerDriver.move(Directions.LEFT);
+			localPlayer.move(Directions.LEFT);
 			image(imageCache.getPImage(ARROW_LEFT_PRESS), 10, height - ( 2 * buttonSize + 60), buttonSize, buttonSize);
 		}
 		
 		if (mouseX >= 10+(2*buttonSize) && mouseX <= 10+(3*buttonSize) && mouseY >= height - (2*buttonSize+60) && mouseY <= height - (buttonSize+60)) {
-			localPlayerDriver.move(Directions.RIGHT);
+			localPlayer.move(Directions.RIGHT);
 			image(imageCache.getPImage(ARROW_RIGHT_PRESS), 10 + (2 * buttonSize), height - (2 * buttonSize + 60), buttonSize, buttonSize);
 		}
 		
 		if (mouseX >= 10+(buttonSize) && mouseX <= 10+(2*buttonSize) && mouseY >= height - (buttonSize+60) && mouseY <= height - 60) {
-			localPlayerDriver.move(Directions.DOWN);
+			localPlayer.move(Directions.DOWN);
 			image(imageCache.getPImage(ARROW_DOWN_PRESS), 10 + buttonSize, height - (buttonSize + 60), buttonSize, buttonSize);
 		}
 	}

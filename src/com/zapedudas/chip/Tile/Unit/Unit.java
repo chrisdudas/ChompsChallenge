@@ -1,16 +1,12 @@
 package com.zapedudas.chip.Tile.Unit;
 
 import com.zapedudas.chip.Tile.Tile;
-import com.zapedudas.chip.Tile.Driver.Driver;
-import com.zapedudas.chip.map.Map;
-import com.zapedudas.chip.map.MessageDispatcher;
 
-public abstract class Unit<DriverType extends Driver<?>> extends Tile{
+public abstract class Unit extends Tile{
 	private final String IMAGEPATH_DYING = "tombstone.png";
 	private final String IMAGEPATH_DROWNING = "water_splash.png";
 	private final String IMAGEPATH_BURNING = "tombstone.png";
 	
-	private DriverType driver;
 	protected UnitState unitState;
 	
 	public enum UnitState {
@@ -35,35 +31,6 @@ public abstract class Unit<DriverType extends Driver<?>> extends Tile{
 		else return null;
 	}
 	
-	/**
-	 * Move this unit 1 space in the given direction, animating the movement
-	 */
-	public void move(Directions direction) {
-		switch (direction) {
-			case UP:
-				this.setY(this.getY() - 1);
-				break;
-			case DOWN:
-				this.setY(this.getY() + 1);
-				break;
-			case LEFT:
-				this.setX(this.getX() - 1);
-				break;
-			case RIGHT:
-				this.setX(this.getX() + 1);
-				break;
-		}
-		
-		beginAnimation(direction);
-	}
-		
-	/**
-	 * This is simply move the unit to the given co-ords
-	 */
-	public void moveTo(int x, int y) {
-		this.setCoords(x, y);
-	}
-	
 	@Override
 	public void sendTileProperty(String property) {
 		if (property.equals("UP")) setDirection(Directions.UP);
@@ -75,21 +42,6 @@ public abstract class Unit<DriverType extends Driver<?>> extends Tile{
 	@Override
 	protected AnimationMode getAnimationMode() {
 		return AnimationMode.MOVEMENT;
-	}
-	
-	public void setupDriver(Map map, MessageDispatcher messageDispatcher) {
-		DriverType driver = constructDriver(map, messageDispatcher);
-		this.driver = driver;
-	}
-	
-	protected abstract DriverType constructDriver(Map map, MessageDispatcher messageDispatcher);
-	
-//	public void attachDriver(Driver<?> driver) {
-//		this.driver = driver;
-//	}
-
-	public DriverType getDriver() {
-		return this.driver;
 	}
 	
 	public UnitState getUnitState() {

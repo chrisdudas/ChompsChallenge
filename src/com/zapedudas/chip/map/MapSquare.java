@@ -3,8 +3,8 @@ package com.zapedudas.chip.map;
 import java.util.ArrayList;
 
 import com.zapedudas.chip.Tile.Tile;
+import com.zapedudas.chip.Tile.Driver.DrivableUnit;
 import com.zapedudas.chip.Tile.Item.Item;
-import com.zapedudas.chip.Tile.Unit.Unit;
 
 public class MapSquare {
 	private Tile groundTile;
@@ -51,20 +51,16 @@ public class MapSquare {
 		return unitTiles.toArray(new Tile[unitTiles.size()]);
 	}
 	
-	public Unit[] getUnits() {
-		return unitTiles.toArray(new Unit[unitTiles.size()]);
+	public DrivableUnit[] getDrivableUnits() {
+		return unitTiles.toArray(new DrivableUnit[unitTiles.size()]);
 	}
 	
-//	public void setUnitTiles(Tile[] unitTiles) {
-//		this.unitTiles = unitTiles;
-//	}
-	
 	/** This will add the unit to the top of the pile **/
-	public void addUnitTile(Tile unitTileToAdd) {
+	public void addDrivableUnitTile(Tile unitTileToAdd) {
 		unitTiles.add(unitTileToAdd);
 	}
 	
-	public void removeUnitTile(Tile unitToRemove) {
+	public void removeDrivableUnitTile(Tile unitToRemove) {
 		unitTiles.remove(unitToRemove);
 	}
 	
@@ -92,5 +88,23 @@ public class MapSquare {
 		}
 		
 		return tiles.toArray(new Tile[tiles.size()]);		
+	}
+	
+	public void replaceTile(Tile oldTile, Tile newTile) {
+		if (oldTile == this.groundTile) {
+			this.groundTile = newTile;
+		}
+		else if (oldTile == this.itemTile) {
+			this.itemTile = newTile;
+		}
+		else {
+			for (int i = 0; i < this.unitTiles.size(); i++) {
+				if (oldTile == this.unitTiles.get(i)) {
+					this.unitTiles.set(i, newTile);
+				}
+			}
+		
+			// If this point is reached, oldTile was not found
+		}
 	}
 }

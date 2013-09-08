@@ -1,15 +1,12 @@
 package com.zapedudas.chip.Tile.Driver;
 
-import com.zapedudas.chip.map.Map;
-import com.zapedudas.chip.map.MessageDispatcher;
 import com.zapedudas.chip.Tile.Tile;
 import com.zapedudas.chip.Tile.Driver.CollisionManager.Result;
-import com.zapedudas.chip.Tile.Tile.Directions;
 import com.zapedudas.chip.Tile.Unit.Unit;
-import com.zapedudas.chip.Tile.Unit.Unit.UnitState;
+import com.zapedudas.chip.map.Map;
+import com.zapedudas.chip.map.MessageDispatcher;
 
-public abstract class Driver {
-	protected Unit unit;
+public abstract class DrivableUnit extends Unit {
 	protected Map map;
 	protected MessageDispatcher messageDispatcher;
 	
@@ -19,15 +16,14 @@ public abstract class Driver {
 	protected boolean unitKilled;
 	protected int ticksSinceDeath;
 	
-	public Driver(Unit unit, Map map, MessageDispatcher messageDispatch) {
-		this.unit = unit;
+	public DrivableUnit(int x, int y, Map map, MessageDispatcher messageDispatch) {
+		super(x, y);
+		
 		this.map = map;
 		this.messageDispatcher = messageDispatch;
 		
 		this.unitKilled = false;
 		this.driverStopped = false;
-		
-//		this.unit.attachDriver(this);
 	}
 	
 	public void tick() {
@@ -35,11 +31,11 @@ public abstract class Driver {
 		
 		if (driverStopped) return;
 		
-		if (unit.getUnitState() != UnitState.ALIVE) {
+		if (this.getUnitState() != UnitState.ALIVE) {
 			ticksSinceDeath++;
 			
 			if (ticksSinceDeath >= getDyingDuration()) { // Unit has died, destroy
-				this.map.getSquareAt(unit.getX(), unit.getY()).removeUnitTile(unit);
+				this.map.getSquareAt(this.getX(), this.getY()).removeDrivableUnitTile(this);
 				stopDriver();
 			}
 		}
@@ -64,8 +60,8 @@ public abstract class Driver {
 	protected abstract void doAction();
 	
 	protected boolean tryMoveInDirection(Directions direction) {
-		int intent_x = this.unit.getX();
-		int intent_y = this.unit.getY();
+		int intent_x = this.getX();
+		int intent_y = this.getY();
 		
 		switch (direction) {
 			case UP:
@@ -87,30 +83,33 @@ public abstract class Driver {
 		
 		Tile[] tilesAtIntent = map.getSquareAt(intent_x, intent_y).toArray();
 		
-		for (int i = tilesAtIntent.length - 1; i >= 0; i--) {
-			Tile tileAtNew = tilesAtIntent[i];
+//		for (int i = tilesAtIntent.length - 1; i >= 0; i--) {
+		for (Tile tileAtNew : tilesAtIntent) {
+//			Tile tileAtNew = tilesAtIntent[i];
 			
 			if (tileAtNew == null) continue;
 			
-			CollisionManager.Result collisionResult = CollisionManager.handleCollision(this.unit, tileAtNew);  
+			CollisionManager.Result collisionResult = CollisionManager.handleCollision(this, tileAtNew, this.map);
 			
 			if (collisionResult == Result.BLOCKED) {
 				return false;
 			}
 		}
 		
-		map.getSquareAt(this.unit.getX(), this.unit.getY()).removeUnitTile(unit);
-		map.getSquareAt(intent_x, intent_y).addUnitTile(this.unit);
+		map.getSquareAt(this.getX(), this.getY()).removeDrivableUnitTile(this);
+		map.getSquareAt(intent_x, intent_y).addDrivableUnitTile(this);
 		
-		unit.move(direction);
-		unit.setDirection(direction);
+		this.setCoords(intent_x, intent_y);
+		this.setDirection(direction);
+		
+		this.beginAnimation(direction);
 		
 		return true;
 	}
 
 	public void killUnit(UnitState newState) {
 		unitKilled = true;
-		this.unit.setUnitState(newState);
+		this.setUnitState(newState);
 		ticksSinceDeath = 0;
 	}
 	
@@ -122,8 +121,12 @@ public abstract class Driver {
 		return driverStopped;
 	}
 	
+	public boolean isKilled() {
+		return unitKilled;
+	}
+	
 	public Class<?> getCurrentGroundTileType() {
-		return map.getSquareAt(this.unit.getX(), this.unit.getY()).getGroundTile().getClass();
+		return map.getSquareAt(this.getX(), this.getY()).getGroundTile().getClass();
 	}
 	
 	protected Tile getClosestTileOfType(Class<?> type) {
@@ -132,8 +135,8 @@ public abstract class Driver {
 		Tile closestTile = null;
 		double closestTileDistance = 0;
 		
-		int unitX = unit.getX();
-		int unitY = unit.getY();
+		int unitX = this.getX();
+		int unitY = this.getY();
 		
 		for (Tile tile : tiles) {
 			double distance = Math.sqrt( Math.abs( Math.pow(tile.getX() - unitX, 2) + Math.pow(tile.getY() - unitY, 2) ) );
